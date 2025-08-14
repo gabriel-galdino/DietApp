@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/x86_64-linux-gnu
+includedir=${prefix}/include/wx-3.2
+
+Name: wxWidgets Core
+Description: Cross-Platform GUI Library (GTK3 Version)
+Version: 3.2.0
+Requires: gtk+-3.0
+Libs: -L${libdir} -lwx_gtk3u_core-3.2 -lwx_baseu-3.2
+Cflags: -I${includedir} -I${libdir}/wx/include/gtk3-unicode-3.2 -D_FILE_OFFSET_BITS=64 -D__WXGTK__ -pthread

@@ -1,0 +1,36 @@
+name: Build Linux
+on:
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      WXWIDGETS_VERSION: "3.2.4+dfsg-4build1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install wxWidgets
+        run: |
+          sudo apt update
+          sudo apt install -y \
+              libwxgtk3.2-dev=${{ env.WXWIDGETS_VERSION }} \
+              libwxgtk3.2-1t64=${{ env.WXWIDGETS_VERSION }} \
+              libwxbase3.2-1t64=${{ env.WXWIDGETS_VERSION }} \
+              libgtk-3-dev \
+              cmake \
+              build-essential
+              
+          wx-config --version-full
+          dpkg -l libwxgtk3.2-1t64 | grep ${{ env.WXWIDGETS_VERSION }}
+
+      - name: Configure build
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Compile
+        run: |
+          cd build && cmake --build . --config Release
