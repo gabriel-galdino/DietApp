@@ -44,4 +44,11 @@ if(NOT WXWIDGETS_FOUND)
           "2. Search paths: $ENV{PKG_CONFIG_PATH}")
 endif()
 
+pkg_check_modules(WXSQLITE3 REQUIRED wxsqlite3-3.2)
+if(NOT WXSQLITE3_FOUND)
+    message(FATAL_ERROR "wxSQLite3 not found! To do checking:\n"
+            "1. Installation: sudo apt install libwxsqlite3-3.2-dev\n"
+          "2. Search paths: $ENV{PKG_CONFIG_PATH}")
+endif()
+
 add_subdirectory(src)
