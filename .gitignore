@@ -81,3 +81,9 @@ main.toc
 build*/
 *.user
 *.suo
+
+# Flyway ignores
+*.user.toml
+*.artifact
+report.html
+report.json
