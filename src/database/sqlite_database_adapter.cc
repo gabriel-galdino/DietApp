@@ -4,8 +4,17 @@
 #include "database/database_adapter.h"
 #include "database/sqlite_database_adapter.h"
 
-bool SQLiteDatabaseAdapter::Connect(const std::string& databasePath) {
-  return false;
+bool SQLiteDatabaseAdapter::Initialize(const std::string& database_path) {
+  database_.Open(wxString(database_path.c_str()));
+  if (database_.IsOpen() == false) {
+    return false;
+  }
+  return true;
+}
+
+bool SQLiteDatabaseAdapter::Shutdown() {
+  database_.Close();
+  return true;
 }
 
 bool SQLiteDatabaseAdapter::Execute(const std::string& query) {

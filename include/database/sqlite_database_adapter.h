@@ -8,16 +8,25 @@
 class SQLiteDatabaseAdapter : public DatabaseAdapter {
  public:
   SQLiteDatabaseAdapter() = default;
-  ~SQLiteDatabaseAdapter() override = default;
 
-  bool Connect(const std::string& databasePath) override;
+  ~SQLiteDatabaseAdapter() = default;
+
+  bool Initialize(const std::string& database_path) override;
+
+  bool Shutdown() override;
+
   bool Execute(const std::string& query) override;
+
   std::unique_ptr<QueryResult> Select(const std::string& query) override;
+
   int GetLastInsertId() override;
+
   std::string GetLastError() override;
 
   bool BeginTransaction() override;
+
   bool CommitTransaction() override;
+
   bool RollbackTransaction() override;
 
  private:
