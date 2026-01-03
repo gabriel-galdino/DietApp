@@ -1,7 +1,17 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-add_library(application
+add_library(application OBJECT
   application.cc
 )
+target_compile_definitions(application PRIVATE
+    __WXGTK__=1
+    __WXGTK3__=1
+    _FILE_OFFSET_BITS=64
+    wxUSE_GUI=1
+)
 target_include_directories (application PRIVATE
-  ${CMAKE_SOURCE_DIR}/include)
+  ${CMAKE_SOURCE_DIR}/include
+  ${WXWIDGETS_INCLUDE_DIRS})
+target_link_libraries (application PRIVATE
+  database
+  ${WXWIDGETS_LIBRARIES})

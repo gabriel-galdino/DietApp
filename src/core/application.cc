@@ -1,31 +1,33 @@
 #include "core/application.h"
 
-#include "database/database_manager.h"
-#include "database/user_repository.h"
+#include <wx/app.h>
+#include <wx/filename.h>
+#include <memory>
 
-Application::Application() {
-  db_manager_ = std::unique_ptr<DatabaseManager>(new DatabaseManager());
+#include "core/ports/repository/user_repository.h"
+#include "database/database_adapter.h"
+#include "database/database_manager.h"
+#include "presentation/presentation.h"
+
+bool Application::OnInit() {
+  /*TODO: Fix DB initialization */
+  db_adapter_->Initialize("../schema-model/schema.sql");
+  wxFileName xrc_resources;
+  presentation_->Initialize(xrc_resources);
+  return true;
 }
+
+Application::Application()
+    : db_manager_(std::make_unique<DatabaseManager>()),
+      db_adapter_(db_manager_->CreateAdapter()),
+      presentation_(std::make_unique<Presentation>(this)) {}
 
 Application::~Application() {
   Shutdown();
+  db_adapter_->Shutdown();
 }
 
 bool Application::InitializeDatabase(const std::string& databasePath) {
-  // try {
-  //     db_manager_ = std::make_unique<DatabaseManager>();
-  //     if (!db_manager_->Connect(databasePath)) {
-  //         return false;
-  //     }
-  //
-  //     user_repo_ = std::make_unique<UserRepository>(db_manager_.get());
-  //
-  //     return db_manager_->verifyDatabaseSchema();
-  //
-  // } catch (const std::exception& e) {
-  //     wxLogError("Erro na inicialização do database: %s", e.what());
-  //     return false;
-  // }
   return false;
 }
 
@@ -33,24 +35,19 @@ bool Application::InitializeApplicationSettings() {
   return false;
 }
 
-void Application::Shutdown() {
-  // user_repo_.reset();
-  // db_manager_.reset();
-}
+void Application::Shutdown() {}
 
 DatabaseManager* Application::GetDatabaseManager() const {
-  // return db_manager_.get();
   return nullptr;
 }
 
 UserRepository* Application::GetUserRepository() const {
-  // return user_repo_.get();
   return nullptr;
 }
 
 bool Application::ValidateUserCredentials(const std::string& username,
                                           const std::string& password) {
-  // if (!user_repo_) return false;
-  // return user_repo_->ValidateCredentials(username, password);
   return false;
 }
+
+wxIMPLEMENT_APP(Application);
