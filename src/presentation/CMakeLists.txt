@@ -1,19 +1,16 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-add_executable(DietApp
-  my_app.cc
-  my_frame.cc
+add_library(presentation OBJECT
+  presentation.cc
 )
-target_compile_definitions(DietApp PRIVATE
+target_compile_definitions(presentation PRIVATE
     __WXGTK__=1
     __WXGTK3__=1
     _FILE_OFFSET_BITS=64
     wxUSE_GUI=1
 )
-target_compile_options(DietApp PRIVATE ${WX_CFLAGS_OTHER})
-target_include_directories (DietApp PRIVATE
+target_compile_options(presentation PRIVATE ${WX_CFLAGS_OTHER})
+target_include_directories (presentation PRIVATE
   ${CMAKE_SOURCE_DIR}/include
   ${WXWIDGETS_INCLUDE_DIRS})
-target_link_libraries(DietApp PRIVATE
-  application
-${WXWIDGETS_LIBRARIES})
+target_link_libraries(presentation PRIVATE ${WXWIDGETS_LIBRARIES})

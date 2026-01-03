@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-project(DietApp VERSION 0.1.0)
+project(dietapp VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 execute_process(
@@ -31,13 +31,22 @@ configure_file(
 )
 
 find_package(PkgConfig REQUIRED)
+
 if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "pkg-config not found! Install it with:\n"
             "sudo apt install pkg-config")
 endif()
 
+pkg_check_modules(CATCH2 REQUIRED
+  catch2-with-main)
+if(NOT CATCH2_FOUND)
+    message(FATAL_ERROR "Catch2 not found! To do checking:\n"
+    "1. Installation: sudo apt install catch2\n")
+endif()
+
 set(ENV{PKG_CONFIG_PATH} "${LOCAL_PKG_DIR}:$ENV{PKG_CONFIG_PATH}")
-pkg_check_modules(WXWIDGETS REQUIRED libwx_gtk3u_core-3.2)
+pkg_check_modules(WXWIDGETS REQUIRED
+  libwx_gtk3u_core-3.2)
 if(NOT WXWIDGETS_FOUND)
     message(FATAL_ERROR "wxWidgets not found! To do checking:\n"
             "1. Installation: sudo apt install libwxgtk3.2-dev\n"
@@ -52,3 +61,26 @@ if(NOT WXSQLITE3_FOUND)
 endif()
 
 add_subdirectory(src)
+add_subdirectory(test)
+
+add_executable(dietapp)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(BUILD_RUNTIME_DIR ${CMAKE_BINARY_DIR}/bin)
+
+    set_target_properties(dietapp PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${BUILD_RUNTIME_DIR}
+    )
+
+    file(COPY
+        ${CMAKE_SOURCE_DIR}/src/presentation/xrc
+        DESTINATION ${CMAKE_BINARY_DIR}/share/dietapp
+    )
+endif()
+
+target_link_libraries(dietapp PRIVATE application database presentation)
+
+include(GNUInstallDirs)
+install(TARGETS dietapp DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY src/presentation/xrc
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
+

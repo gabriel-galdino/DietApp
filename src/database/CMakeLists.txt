@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-add_library(database
+add_library(database OBJECT
   database_manager.cc
   sqlite_database_adapter.cc
-  user_repository.cc
+  sqlite_user_repository.cc
 )
 target_compile_definitions(database PRIVATE
     __WXGTK__=1
