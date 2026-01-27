@@ -1,34 +1,40 @@
 #ifndef DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H
 #define DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H
 
+#include <memory>
+
 #include <wx/filename.h>
 #include <wx/simplebook.h>
 #include <wx/wx.h>
 
-#include "core/application.h"
+#include "core/i_application.h"
+#include "presentation/navigation.h"
+#include "presentation/pages/initial_page.h"
+#include "presentation/pages/register_page.h"
 
-class Presentation {
+class Presentation : public INavigation {
  public:
-  Presentation(Application* app);
+  void NavigateTo(PageId page) override;
+
+  Presentation(IApplication* app);
 
   bool Initialize(wxFileName& xrc_resources, wxFrame* top_window);
 
-  void OnButtonRegister(wxCommandEvent& event);
-
   wxFrame* GetMainFrame() { return main_frame_; }
-
-  wxButton* GetRegisterButton() { return register_button_; }
 
   wxSimplebook* GetBook() { return book_; }
 
+  std::shared_ptr<InitialPage> GetInitialPage() { return initial_page_; }
+
+  std::shared_ptr<RegisterPage> GetRegisterPage() { return register_page_; }
+
  private:
-  Application* app_;
+  IApplication* app_;
   wxFrame* main_frame_{nullptr};
-  wxButton* register_button_{nullptr};
   wxSimplebook* book_{nullptr};
-  const int initial_page_idx_{0};
-  const int register_page_idx_{1};
-  const int create_page_idx_{2};
+  std::shared_ptr<InitialPage> initial_page_;
+  std::shared_ptr<RegisterPage> register_page_;
+  // PageCreate* create_page_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H

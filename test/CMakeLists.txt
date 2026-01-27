@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 add_executable(presentation_test
   presentation_test.cc
   wx/testableframe.cc
+  core/fake_application.cc
 )
 target_compile_definitions(presentation_test PRIVATE
     __WXGTK__=1
@@ -17,6 +18,7 @@ target_include_directories (presentation_test PRIVATE
   ${WXWIDGETS_INCLUDE_DIRS}
   ${CATCH2_INCLUDE_DIRS})
 target_link_libraries(presentation_test PRIVATE
+  # application
   presentation
   ${WXWIDGETS_LIBRARIES}
   ${CATCH2_LIBRARIES})
