@@ -1,0 +1,83 @@
+documentode
+npm-debug.log
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# WebStorm
+.idea/
+
+# vi
+*~
+
+# General
+log/
+*.log
+
+# etc...
+*.png
+*.jpg
+*.jpeg
+
+*__pycache__
+*.tags
+*.tags[0-9]*
+*.log*
+
+# Environments
+pyvenv.cfg
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+bin/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+documento.aux
+documento.log
+documento.out
+documento.pdf
+documento.toc
+documento.xmpdata
+documento.xmpi
+documento.bbl
+documento.blg
+
+main.aux
+main.nav
+main.out
+main.pdf
+main.snm
+main.synctex.gz
+main.toc
+.clang-format
+*.gch
+.clang-tidy
+build*/
+*.user
+*.suo
