@@ -1,39 +1,32 @@
 #define CATCH_CONFIG_RUNNER
 #include "presentation/presentation.h"
 
-#include <wx/app.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
-#include <wx/uiaction.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include "core/application.h"
-#include "wx/testableframe.h"
 
 class PresentationTest : public wxApp {
  public:
-  PresentationTest() {}
-
-  virtual bool OnInit() wxOVERRIDE {
+  bool OnInit() override {
     std::vector<const char*> cmd_line_args;
     for (int i = 0; i < argc; ++i) {
       cmd_line_args.push_back(wxString(argv[i]).utf8_string().c_str());
     }
     int result =
         Catch::Session().run(cmd_line_args.size(), cmd_line_args.data());
+    Exit();
     return false;
   }
 };
 
 wxIMPLEMENT_APP(PresentationTest);
 
-#if wxUSE_UIACTIONSIMULATOR
-
-TEST_CASE("Presentation", "[UI Flow]") {
-  wxXmlResource::Get()->InitAllHandlers();
+TEST_CASE("Presentation", "[Initialize]") {
   wxFileName xrc_resources(wxStandardPaths::Get().GetExecutablePath(), "");
   xrc_resources.RemoveLastDir();
   xrc_resources.RemoveLastDir();
@@ -41,36 +34,18 @@ TEST_CASE("Presentation", "[UI Flow]") {
   xrc_resources.AppendDir("dietapp");
   xrc_resources.AppendDir("xrc");
   xrc_resources.SetFullName("resource.xrc");
-  wxXmlResource::Get()->Load(xrc_resources.GetFullPath());
 
   Presentation pres(nullptr);
-  wxTestableFrame* test_frame = wxDynamicCast(
-      wxXmlResource::Get()->LoadFrame(nullptr, "MainFrame"), wxTestableFrame);
-  wxTheApp->SetTopWindow(test_frame);
-  // Use fixed position to facilitate debugging.
-  test_frame->Move(200, 200);
-  REQUIRE(pres.Initialize(xrc_resources, test_frame));
+  REQUIRE(pres.Initialize(xrc_resources));
 
-  SECTION("Initial Page") {
-    REQUIRE(pres.GetBook()->GetSelection() == 0);
-
-    EventCounter clicked(pres.GetRegisterButton(), wxEVT_BUTTON);
-
-    wxUIActionSimulator sim;
-    wxYield();
-
-    //We move in slightly to account for window decorations, we need to yield
-    //after every wxUIActionSimulator action to keep everything working in GTK
-    sim.MouseMove(pres.GetRegisterButton()->GetScreenPosition() +
-                  wxPoint(10, 10));
-    wxYield();
-
-    sim.MouseClick();
-    wxYield();
-
-    CHECK(clicked.GetCount() == 1);
-    REQUIRE(pres.GetBook()->GetSelection() == 1);
+  SECTION("Initialize") {
+    wxFrame* initial_frame =
+        wxXmlResource::Get()->LoadFrame(nullptr, "Initial");
+    wxFrame* register_frame =
+        wxXmlResource::Get()->LoadFrame(nullptr, "Register");
+    wxFrame* create_frame = wxXmlResource::Get()->LoadFrame(nullptr, "Create");
+    REQUIRE(initial_frame != nullptr);
+    REQUIRE(register_frame != nullptr);
+    REQUIRE(create_frame != nullptr);
   }
 }
-
-#endif  // wxUSE_UIACTIONSIMULATOR

@@ -13,7 +13,7 @@ bool Application::OnInit() {
   /*TODO: Fix DB initialization */
   db_adapter_->Initialize("../schema-model/schema.sql");
   wxFileName xrc_resources;
-  presentation_->Initialize(xrc_resources, nullptr);
+  presentation_->Initialize(xrc_resources);
   return true;
 }
 
