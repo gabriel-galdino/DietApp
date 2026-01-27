@@ -1,26 +1,23 @@
 #include "core/application.h"
 
-#include <wx/app.h>
-#include <wx/filename.h>
 #include <memory>
+
+#include <wx/filename.h>
 
 #include "core/ports/repository/user_repository.h"
 #include "database/database_adapter.h"
 #include "database/database_manager.h"
 #include "presentation/presentation.h"
 
-bool Application::OnInit() {
+Application::Application()
+    : db_manager_(std::make_unique<DatabaseManager>()),
+      db_adapter_(db_manager_->CreateAdapter()),
+      presentation_(std::make_unique<Presentation>(this)) {
   /*TODO: Fix DB initialization */
   db_adapter_->Initialize("../schema-model/schema.sql");
   wxFileName xrc_resources;
   presentation_->Initialize(xrc_resources, nullptr);
-  return true;
 }
-
-Application::Application()
-    : db_manager_(std::make_unique<DatabaseManager>()),
-      db_adapter_(db_manager_->CreateAdapter()),
-      presentation_(std::make_unique<Presentation>(this)) {}
 
 Application::~Application() {
   Shutdown();
@@ -50,4 +47,8 @@ bool Application::ValidateUserCredentials(const std::string& username,
   return false;
 }
 
-wxIMPLEMENT_APP(Application);
+bool Application::AddMealToUser(const std::string& name,
+                                const std::string& meal) {
+  printf("Add Meal To User\n");
+  return true;
+}

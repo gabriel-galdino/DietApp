@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include <wx/wx.h>
+#include "core/i_application.h"
 
 // Forward declarations
 class DatabaseAdapter;
@@ -12,13 +12,11 @@ class DatabaseManager;
 class UserRepository;
 class Presentation;
 
-class Application : public wxApp {
+class Application : public IApplication {
  public:
   Application();
 
   ~Application();
-
-  bool OnInit() override;
 
   bool InitializeDatabase(const std::string& databasePath);
 
@@ -34,6 +32,8 @@ class Application : public wxApp {
 
   bool ValidateUserCredentials(const std::string& username,
                                const std::string& password);
+
+  bool AddMealToUser(const std::string& name, const std::string& meal) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;
