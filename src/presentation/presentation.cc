@@ -5,11 +5,8 @@
 
 #include "presentation/presentation.h"
 
-Presentation::Presentation(Application* app) : app_(app) {}
+Presentation::Presentation(IApplication* app) : app_(app) {}
 
-/*TODO: When running the bin of app a warning about the wxTestableFrame not
-        found is shown, but this does not affect the app per se, but anyway it
-        is anoying and should be removed */
 bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
 
   if (xrc_resources.IsOk()) {
@@ -27,22 +24,21 @@ bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
     main_frame_ = wxXmlResource::Get()->LoadFrame(nullptr, "MainFrame");
   }
 
-  register_button_ = XRCCTRL(*main_frame_, "m_buttonRegister", wxButton);
-  if (register_button_ == nullptr) {
-    return false;
-  }
-  register_button_->Bind(wxEVT_BUTTON, &Presentation::OnButtonRegister, this,
-                         XRCID(register_button_->GetName()));
-
   book_ = XRCCTRL(*main_frame_, "m_mainBook", wxSimplebook);
   if (book_ == nullptr) {
     return false;
   }
 
+  wxPanel* initial_page = XRCCTRL(*book_, "m_panelPageInit", wxPanel);
+  wxPanel* register_page = XRCCTRL(*book_, "m_panelPageRegister", wxPanel);
+
+  initial_page_ = std::make_shared<InitialPage>(initial_page, this);
+  register_page_ = std::make_shared<RegisterPage>(register_page, this, app_);
+
   main_frame_->Show();
   return true;
 }
 
-void Presentation::OnButtonRegister(wxCommandEvent& event) {
-  book_->SetSelection(register_page_idx_);
+void Presentation::NavigateTo(PageId page) {
+  book_->SetSelection(static_cast<size_t>(page));
 }

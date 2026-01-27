@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <resource xmlns="http://www.wxwidgets.org/wxxrc" version="2.5.3.0">
-  <object class="wxFrame" name="MainFrame">
+  <object class="wxFrame" name="MainFrame" subclass="wxTestableFrame">
     <size>572,281</size>
     <style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
     <title></title>

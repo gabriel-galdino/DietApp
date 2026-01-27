@@ -10,7 +10,7 @@
 #include <catch2/catch_session.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "core/application.h"
+#include "core/fake_application.h"
 #include "wx/testableframe.h"
 
 class PresentationTest : public wxApp {
@@ -40,10 +40,11 @@ TEST_CASE("Presentation", "[UI Flow]") {
   xrc_resources.AppendDir("share");
   xrc_resources.AppendDir("dietapp");
   xrc_resources.AppendDir("xrc");
-  xrc_resources.SetFullName("resource.xrc");
+  xrc_resources.SetFullName("test_resource.xrc");
   wxXmlResource::Get()->Load(xrc_resources.GetFullPath());
 
-  Presentation pres(nullptr);
+  IApplication* app = new FakeApplication();
+  Presentation pres(app);
   wxTestableFrame* test_frame = wxDynamicCast(
       wxXmlResource::Get()->LoadFrame(nullptr, "MainFrame"), wxTestableFrame);
   wxTheApp->SetTopWindow(test_frame);
@@ -54,15 +55,17 @@ TEST_CASE("Presentation", "[UI Flow]") {
   SECTION("Initial Page") {
     REQUIRE(pres.GetBook()->GetSelection() == 0);
 
-    EventCounter clicked(pres.GetRegisterButton(), wxEVT_BUTTON);
+    EventCounter clicked(pres.GetInitialPage()->GetRegisterButton(),
+                         wxEVT_BUTTON);
 
     wxUIActionSimulator sim;
     wxYield();
 
     //We move in slightly to account for window decorations, we need to yield
     //after every wxUIActionSimulator action to keep everything working in GTK
-    sim.MouseMove(pres.GetRegisterButton()->GetScreenPosition() +
-                  wxPoint(10, 10));
+    sim.MouseMove(
+        pres.GetInitialPage()->GetRegisterButton()->GetScreenPosition() +
+        wxPoint(10, 10));
     wxYield();
 
     sim.MouseClick();
