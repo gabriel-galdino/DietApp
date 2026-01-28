@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS "users" (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  `id` INTEGER PRIMARY KEY,
+  `name` TEXT NOT NULL,
+  `created_at` TEXT NOT NULL DEFAULT current_timestamp
 );
 CREATE TABLE IF NOT EXISTS "foods" (
   `id` INTEGER PRIMARY KEY,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS "meals" (
   `id` INTEGER PRIMARY KEY,
   `user_id` INTEGER NOT NULL,
   `name` TEXT NOT NULL,
-  `created_at` TEXT NOT NULL,
+  `created_at` TEXT NOT NULL DEFAULT current_timestamp,
   FOREIGN KEY(`user_id`) REFERENCES `users`(`id`)
 );
 CREATE TABLE IF NOT EXISTS "meal_foods" (

@@ -11,9 +11,17 @@ class RegisterPage {
   RegisterPage(wxPanel* register_page, INavigation* navigator,
                IApplication* app);
 
+  wxButton* GetCreateButton() { return create_button_; }
+
+  wxTextCtrl* GetNameCtrl() { return name_ctrl_; }
+
+  wxTextCtrl* GetMealCtrl() { return meal_ctrl_; }
+
   void OnButtonCreate(wxCommandEvent& event);
 
  private:
+  void ShowError(const std::string& err_msg);
+
   wxPanel* register_page_{nullptr};
   INavigation* navigator_{nullptr};
   IApplication* app_;

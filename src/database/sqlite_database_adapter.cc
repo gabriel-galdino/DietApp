@@ -1,14 +1,31 @@
 #include <memory>
 #include <string>
 
-#include "database/database_adapter.h"
-#include "database/sqlite_database_adapter.h"
+#include <wx/filename.h>
+#include <wx/stdpaths.h>
 
-bool SQLiteDatabaseAdapter::Initialize(const std::string& database_path) {
-  database_.Open(wxString(database_path.c_str()));
+#include "database/database_statement.h"
+#include "database/sqlite_database_adapter.h"
+#include "database/sqlite_statement.h"
+
+bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
+  if (database.IsOk()) {
+    database_.Open(database.GetFullPath());
+  } else {
+    wxStandardPaths& paths = wxStandardPaths::Get();
+    database = wxFileName(paths.GetDataDir(), "");
+    database.SetFullName("dietapp.db");
+    database_.Open(database.GetFullPath());
+  }
+
   if (database_.IsOpen() == false) {
     return false;
   }
+
+  wxString sql;
+  wxFile sql_file("../schema-model/schema.sql");
+  sql_file.ReadAll(&sql);
+  database_.ExecuteUpdate(sql);
   return true;
 }
 
@@ -17,30 +34,39 @@ bool SQLiteDatabaseAdapter::Shutdown() {
   return true;
 }
 
-bool SQLiteDatabaseAdapter::Execute(const std::string& query) {
-  return false;
+std::unique_ptr<DatabaseStatement> SQLiteDatabaseAdapter::Prepare(
+    const std::string& sql) {
+  return std::make_unique<SQLiteStatement>(database_.PrepareStatement(sql));
 }
 
-std::unique_ptr<QueryResult> SQLiteDatabaseAdapter::Select(
-    const std::string& query) {
-  return nullptr;
-}
-int SQLiteDatabaseAdapter::GetLastInsertId() {
-  return -1;
-}
+// bool SQLiteDatabaseAdapter::Execute(const std::string& query) {
+//   return false;
+// }
+//
+// std::unique_ptr<QueryResult> SQLiteDatabaseAdapter::Select(
+//     const std::string& query) {
+//   return nullptr;
+// }
+//
+// std::string SQLiteDatabaseAdapter::GetLastError() {
+//   return "";
+// }
 
-std::string SQLiteDatabaseAdapter::GetLastError() {
-  return "";
+long long SQLiteDatabaseAdapter::GetLastInsertId() {
+  return database_.GetLastRowId().GetValue();
 }
 
 bool SQLiteDatabaseAdapter::BeginTransaction() {
-  return false;
+  database_.Begin();
+  return true;
 }
 
 bool SQLiteDatabaseAdapter::CommitTransaction() {
-  return false;
+  database_.Commit();
+  return true;
 }
 
 bool SQLiteDatabaseAdapter::RollbackTransaction() {
-  return false;
+  database_.Rollback();
+  return true;
 }

@@ -16,9 +16,7 @@
 wxTestableFrame::wxTestableFrame() : wxFrame() {}
 
 void wxTestableFrame::OnEvent(wxEvent& evt) {
-  printf("Trigered Event\n");
   m_count[evt.GetEventType()]++;
-
   // if (!evt.IsCommandEvent())
   evt.Skip();
 }

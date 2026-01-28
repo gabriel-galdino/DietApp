@@ -7,7 +7,7 @@
 
 class DatabaseManager {
  public:
-  static std::unique_ptr<DatabaseAdapter> CreateAdapter();
+  static std::shared_ptr<DatabaseAdapter> CreateAdapter();
 };
 
 #endif  // DIETAPP_INCLUDE_DATABASE_DATABASE_MANAGER_H

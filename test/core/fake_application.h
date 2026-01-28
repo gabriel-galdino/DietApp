@@ -11,7 +11,14 @@ class FakeApplication : public IApplication {
 
   ~FakeApplication() = default;
 
+  bool IsTestsMode() const override { return true; }
+
   bool AddMealToUser(const std::string& name, const std::string& meal) override;
+
+  void WillReturn(bool success) { success_ = success; }
+
+ private:
+  bool success_ = true;
 };
 
 #endif  // DIETAPP_INCLUDE_TEST_APPLICATION_H
