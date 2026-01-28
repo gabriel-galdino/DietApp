@@ -4,6 +4,8 @@ add_library(database OBJECT
   database_manager.cc
   sqlite_database_adapter.cc
   sqlite_user_repository.cc
+  sqlite_meal_repository.cc
+  sqlite_statement.cc
 )
 target_compile_definitions(database PRIVATE
     __WXGTK__=1

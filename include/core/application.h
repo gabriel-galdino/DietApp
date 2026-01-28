@@ -10,6 +10,7 @@
 class DatabaseAdapter;
 class DatabaseManager;
 class UserRepository;
+class MealRepository;
 class Presentation;
 
 class Application : public IApplication {
@@ -33,13 +34,17 @@ class Application : public IApplication {
   bool ValidateUserCredentials(const std::string& username,
                                const std::string& password);
 
-  bool AddMealToUser(const std::string& name, const std::string& meal) override;
+  bool IsTestsMode() const override { return false; }
+
+  bool AddMealToUser(const std::string& user_name,
+                     const std::string& meal_name) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;
-  std::unique_ptr<DatabaseAdapter> db_adapter_;
+  std::shared_ptr<DatabaseAdapter> db_adapter_;
   std::unique_ptr<Presentation> presentation_;
   std::unique_ptr<UserRepository> user_repo_;
+  std::unique_ptr<MealRepository> meal_repo_;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_APPLICATION_H

@@ -36,19 +36,33 @@ RegisterPage::RegisterPage(wxPanel* register_page, INavigation* navigator,
 }
 
 void RegisterPage::OnButtonCreate(wxCommandEvent& event) {
-  if (name_ctrl_->Validate() == false ||
-      name_ctrl_->TransferDataFromWindow() == false) {
+  name_ctrl_->TransferDataFromWindow();
+  auto name_validator =
+      wxDynamicCast(name_ctrl_->GetValidator(), wxTextValidator);
+  if (name_validator->IsValid(name_).empty() == false) {
+    ShowError(std::string("Campo nome é inválido."));
     return;
   }
 
-  if (meal_ctrl_->Validate() == false ||
-      meal_ctrl_->TransferDataFromWindow() == false) {
+  meal_ctrl_->TransferDataFromWindow();
+  auto meal_validator =
+      wxDynamicCast(meal_ctrl_->GetValidator(), wxTextValidator);
+  if (meal_validator->IsValid(meal_).empty() == false) {
+    ShowError(std::string("Campo refeição é inválido."));
     return;
   }
 
   if (app_->AddMealToUser(name_.utf8_string(), meal_.utf8_string()) == false) {
+    ShowError(std::string("Falha em salvar dados."));
     return;
   }
 
   navigator_->NavigateTo(PageId::Create);
+}
+
+void RegisterPage::ShowError(const std::string& err_msg) {
+  if (app_->IsTestsMode() == false) {
+    wxMessageBox(wxString(wxString::FromUTF8(err_msg)), wxT("Erro"),
+                 wxICON_ERROR);
+  }
 }

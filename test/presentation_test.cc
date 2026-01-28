@@ -52,7 +52,7 @@ TEST_CASE("Presentation", "[UI Flow]") {
   test_frame->Move(200, 200);
   REQUIRE(pres.Initialize(xrc_resources, test_frame));
 
-  SECTION("Initial Page") {
+  SECTION("on register button should go to the next page") {
     REQUIRE(pres.GetBook()->GetSelection() == 0);
 
     EventCounter clicked(pres.GetInitialPage()->GetRegisterButton(),
@@ -73,6 +73,72 @@ TEST_CASE("Presentation", "[UI Flow]") {
 
     CHECK(clicked.GetCount() == 1);
     REQUIRE(pres.GetBook()->GetSelection() == 1);
+
+    SECTION("on create button with no data should remain in the same page") {
+      REQUIRE(pres.GetBook()->GetSelection() == 1);
+
+      sim.MouseMove(
+          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
+          wxPoint(10, 10));
+      wxYield();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == 1);
+    }
+
+    SECTION("on create button save data fails should remain on the same page") {
+      static_cast<FakeApplication*>(app)->WillReturn(false);
+      REQUIRE(pres.GetBook()->GetSelection() == 1);
+
+      sim.MouseMove(
+          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
+          wxPoint(10, 10));
+      wxYield();
+
+      pres.GetRegisterPage()->GetNameCtrl()->SetFocus();
+      wxYield();
+      sim.Text("John");
+      wxYield();
+
+      pres.GetRegisterPage()->GetMealCtrl()->SetFocus();
+      wxYield();
+      sim.Text("pre training");
+      wxYield();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == 1);
+    }
+
+    SECTION("on create button with valid data should go to the next page") {
+      REQUIRE(pres.GetBook()->GetSelection() == 1);
+
+      sim.MouseMove(
+          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
+          wxPoint(10, 10));
+      wxYield();
+
+      pres.GetRegisterPage()->GetNameCtrl()->SetFocus();
+      wxYield();
+      sim.Text("John");
+      wxYield();
+
+      pres.GetRegisterPage()->GetMealCtrl()->SetFocus();
+      wxYield();
+      sim.Text("pre training");
+      wxYield();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == 2);
+    }
   }
 }
 

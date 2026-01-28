@@ -1,11 +1,18 @@
 #ifndef DIETAPP_INCLUDE_CORE_PORTS_REPOSITORY_USER_REPOSITORY_H
 #define DIETAPP_INCLUDE_CORE_PORTS_REPOSITORY_USER_REPOSITORY_H
 
+#include <string>
+
+#include "core/domain/user.h"
+
 class UserRepository {
  public:
   virtual ~UserRepository() = default;
 
-  virtual void GetUser() = 0;
+  virtual User& GetUser(const std::string& name) = 0;
+  virtual bool AddUser(const User& user) = 0;
+  virtual bool DelUser(const User& user) = 0;
+  virtual bool UpdateUser(const User& user) = 0;
 
   virtual bool ValidateCredentials() = 0;
 };

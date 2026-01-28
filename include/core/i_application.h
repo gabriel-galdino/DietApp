@@ -6,6 +6,7 @@
 class IApplication {
  public:
   virtual ~IApplication() = default;
+  virtual bool IsTestsMode() const = 0;
   virtual bool AddMealToUser(const std::string& name,
                              const std::string& meal) = 0;
 };

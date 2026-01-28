@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 add_library(application OBJECT
   application.cc
+  domain/user.cc
+  domain/meal.cc
   wx_bootstrap_app.cc
 )
 target_compile_definitions(application PRIVATE
