@@ -5,15 +5,22 @@
 
 class User {
  public:
-  User(const std::string& name);
+  User(int id, const std::string& name);
 
-  virtual ~User() = default;
+  User(const std::string& name);
 
   std::string name() const { return name_; }
 
-  bool operator==(const User& other) const { return name_ == other.name_; }
+  void set_id(int id) { id_ = id; }
+
+  int id() const { return id_; }
+
+  bool operator==(const User& other) const { return id_ == other.id_; }
+
+  bool operator<(const User& other) const { return id_ < other.id_; }
 
  private:
+  int id_{-1};
   std::string name_;
 };
 

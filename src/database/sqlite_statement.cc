@@ -5,6 +5,8 @@
 #include <wx/string.h>
 #include <wx/wxsqlite3.h>
 
+#include "database/sqlite_result_set.h"
+
 SQLiteStatement::SQLiteStatement(wxSQLite3Statement stmt)
     : stmt_(std::move(stmt)) {}
 
@@ -21,4 +23,10 @@ void SQLiteStatement::Bind(const std::string& param_name, int value) {
 
 bool SQLiteStatement::Execute() {
   return stmt_.ExecuteUpdate();
+}
+
+std::unique_ptr<DatabaseResultSet> SQLiteStatement::ExecuteQuery() {
+  auto result_set = stmt_.ExecuteQuery();
+  result_set_ = std::make_unique<SQLiteResultSet>(result_set);
+  return std::move(result_set_);
 }

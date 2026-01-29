@@ -3,7 +3,9 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "core/domain/meal.h"
 #include "core/i_application.h"
 
 // Forward declarations
@@ -38,6 +40,8 @@ class Application : public IApplication {
 
   bool AddMealToUser(const std::string& user_name,
                      const std::string& meal_name) override;
+
+  std::vector<Meal> LoadMealsFromUser(const std::string& user_name) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;

@@ -16,17 +16,23 @@ RegisterPage::RegisterPage(wxPanel* register_page, INavigation* navigator,
     return;
   }
 
-  name_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlName", wxTextCtrl);
-  name_ctrl_->SetValidator(
-      wxTextValidator(wxFILTER_ALPHA | wxFILTER_EMPTY, &name_));
+  uint filter = wxFILTER_ASCII |  //
+                wxFILTER_EMPTY |  //
+                wxFILTER_INCLUDE_CHAR_LIST;
+  auto name_validator = wxTextValidator(filter, &name_);
+  auto meal_validator = wxTextValidator(filter, &meal_);
+  wxString included_chars = "ç~^´";
+  name_validator.AddCharIncludes(included_chars);
+  meal_validator.AddCharIncludes(included_chars);
 
+  name_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlName", wxTextCtrl);
+  name_ctrl_->SetValidator(name_validator);
   if (name_ctrl_ == nullptr) {
     return;
   }
 
   meal_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlMeal", wxTextCtrl);
-  meal_ctrl_->SetValidator(
-      wxTextValidator(wxFILTER_ALPHA | wxFILTER_EMPTY, &meal_));
+  meal_ctrl_->SetValidator(meal_validator);
   if (meal_ctrl_ == nullptr) {
     return;
   }
@@ -57,7 +63,9 @@ void RegisterPage::OnButtonCreate(wxCommandEvent& event) {
     return;
   }
 
-  navigator_->NavigateTo(PageId::Create);
+  auto user_meals = app_->LoadMealsFromUser(name_.utf8_string());
+
+  navigator_->NavigateToCreatePageWithMeals(user_meals);
 }
 
 void RegisterPage::ShowError(const std::string& err_msg) {

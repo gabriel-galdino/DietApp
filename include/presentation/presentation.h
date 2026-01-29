@@ -2,19 +2,24 @@
 #define DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H
 
 #include <memory>
+#include <vector>
 
 #include <wx/filename.h>
 #include <wx/simplebook.h>
 #include <wx/wx.h>
 
+#include "core/domain/meal.h"
 #include "core/i_application.h"
 #include "presentation/navigation.h"
+#include "presentation/pages/create_page.h"
 #include "presentation/pages/initial_page.h"
 #include "presentation/pages/register_page.h"
 
 class Presentation : public INavigation {
  public:
   void NavigateTo(PageId page) override;
+
+  void NavigateToCreatePageWithMeals(std::vector<Meal> meals) override;
 
   Presentation(IApplication* app);
 
@@ -34,7 +39,7 @@ class Presentation : public INavigation {
   wxSimplebook* book_{nullptr};
   std::shared_ptr<InitialPage> initial_page_;
   std::shared_ptr<RegisterPage> register_page_;
-  // PageCreate* create_page_;
+  std::shared_ptr<CreatePage> create_page_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H

@@ -1,10 +1,12 @@
 #include "core/application.h"
 
 #include <memory>
+#include <vector>
 
 #include <wx/filename.h>
 #include <wx/wxsqlite3.h>
 
+#include "core/domain/meal.h"
 #include "core/ports/repository/meal_repository.h"
 #include "core/ports/repository/user_repository.h"
 #include "database/database_manager.h"
@@ -22,6 +24,8 @@ Application::Application()
   db_adapter_->Initialize(database);
   wxFileName xrc_resources;
   presentation_->Initialize(xrc_resources, nullptr);
+  user_repo_->LoadAllUsers();
+  meal_repo_->LoadAllMeals();
 }
 
 Application::~Application() {
@@ -57,15 +61,30 @@ bool Application::AddMealToUser(const std::string& user_name,
   try {
     db_adapter_->BeginTransaction();
 
-    user_repo_->AddUser(User(user_name));
-    int user_id = db_adapter_->GetLastInsertId();
+    User user(user_name);
+    if (user_repo_->Exists(user.name()) == false) {
+      user_repo_->AddUser(user);
+    } else {
+      user = user_repo_->GetUser(user_name);
+    }
 
-    meal_repo_->AddMeal(Meal(meal_name), user_id);
+    Meal meal(meal_name);
+    meal_repo_->AddMeal(meal, user.id());
 
     db_adapter_->CommitTransaction();
-    return true;
   } catch (const wxSQLite3Exception& e) {
     db_adapter_->RollbackTransaction();
+    return false;
   }
-  return false;
+  return true;
+}
+
+std::vector<Meal> Application::LoadMealsFromUser(const std::string& user_name) {
+  try {
+    auto user = user_repo_->GetUser(user_name);
+    return meal_repo_->GetMealsFromUser(user.id());
+  } catch (const wxSQLite3Exception& e) {
+    void();
+  }
+  return {};
 }
