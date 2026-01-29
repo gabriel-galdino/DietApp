@@ -22,6 +22,10 @@ bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
     return false;
   }
 
+  if (database_.IsForeignKeySupportEnabled()) {
+    database_.EnableForeignKeySupport(true);
+  }
+
   wxString sql;
   wxFile sql_file("../schema-model/schema.sql");
   sql_file.ReadAll(&sql);

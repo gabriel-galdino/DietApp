@@ -5,6 +5,7 @@ add_library(database OBJECT
   sqlite_database_adapter.cc
   sqlite_user_repository.cc
   sqlite_meal_repository.cc
+  sqlite_result_set.cc
   sqlite_statement.cc
 )
 target_compile_definitions(database PRIVATE

@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 add_library(presentation OBJECT
   pages/initial_page.cc
   pages/register_page.cc
+  pages/create_page.cc
   presentation.cc
 )
 target_compile_definitions(presentation PRIVATE

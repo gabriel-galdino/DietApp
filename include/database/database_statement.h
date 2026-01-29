@@ -1,7 +1,10 @@
 #ifndef DIETAPP_INCLUDE_DATABASE_DATABASE_STATEMENT_H
 #define DIETAPP_INCLUDE_DATABASE_DATABASE_STATEMENT_H
 
+#include <memory>
 #include <string>
+
+#include "database_result_set.h"
 
 class DatabaseStatement {
  public:
@@ -13,6 +16,7 @@ class DatabaseStatement {
   // virtual void Bind(int index, double value) = 0;
 
   virtual bool Execute() = 0;
+  virtual std::unique_ptr<DatabaseResultSet> ExecuteQuery() = 0;
 };
 
 #endif  // DIETAPP_INCLUDE_DATABASE_DATABASE_STATEMENT_H
