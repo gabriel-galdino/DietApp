@@ -49,19 +49,31 @@
                   <flag>wxALL|wxEXPAND</flag>
                   <border>5</border>
                   <option>1</option>
-                  <object class="wxPanel" name="m_panelLeft">
+                  <object class="wxPanel" name="m_panelLeft1">
                     <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
                     <object class="wxGridSizer" name="gSizerLeft">
-                      <rows>1</rows>
+                      <rows>2</rows>
                       <cols>1</cols>
                       <vgap>0</vgap>
                       <hgap>0</hgap>
                       <object class="sizeritem">
-                        <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+                        <flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM</flag>
                         <border>5</border>
                         <option>0</option>
                         <object class="wxButton" name="m_buttonRegister">
                           <label>Registrar</label>
+                          <default>0</default>
+                          <auth_needed>0</auth_needed>
+                          <markup>0</markup>
+                          <bitmap/>
+                        </object>
+                      </object>
+                      <object class="sizeritem">
+                        <flag>wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
+                        <border>5</border>
+                        <option>0</option>
+                        <object class="wxButton" name="m_buttonEnter">
+                          <label>Entrar</label>
                           <default>0</default>
                           <auth_needed>0</auth_needed>
                           <markup>0</markup>
@@ -75,9 +87,9 @@
                   <flag>wxEXPAND | wxALL</flag>
                   <border>5</border>
                   <option>1</option>
-                  <object class="wxPanel" name="m_panelRight">
+                  <object class="wxPanel" name="m_panelRight1">
                     <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
-                    <object class="wxBoxSizer" name="bSizerRight">
+                    <object class="wxBoxSizer" name="bSizerRight1">
                       <orient>wxVERTICAL</orient>
                       <object class="sizeritem">
                         <flag>wxALL|wxEXPAND</flag>
@@ -95,6 +107,90 @@
                         <object class="wxListBox" name="m_listBoxDiets">
                           <style>wxLB_SINGLE</style>
                           <content/>
+                        </object>
+                      </object>
+                    </object>
+                  </object>
+                </object>
+              </object>
+            </object>
+          </object>
+        </object>
+      </object>
+      <object class="simplebookpage">
+        <label>a page</label>
+        <selected>0</selected>
+        <object class="wxPanel" name="m_panelPageEnter">
+          <style>wxTAB_TRAVERSAL</style>
+          <object class="wxBoxSizer" name="bSizer7">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+              <flag>wxEXPAND</flag>
+              <border>5</border>
+              <option>1</option>
+              <object class="wxFlexGridSizer" name="fgSizer2">
+                <vgap>0</vgap>
+                <hgap>0</hgap>
+                <growablerows>1</growablerows>
+                <growablecols>0</growablecols>
+                <rows>2</rows>
+                <cols>1</cols>
+                <object class="sizeritem">
+                  <flag>wxALL|wxEXPAND</flag>
+                  <border>5</border>
+                  <option>0</option>
+                  <object class="wxStaticText" name="m_staticTextExistingAccount">
+                    <label>Entrar com usuário existente</label>
+                    <wrap>-1</wrap>
+                  </object>
+                </object>
+                <object class="sizeritem">
+                  <flag>wxEXPAND | wxALL</flag>
+                  <border>5</border>
+                  <option>1</option>
+                  <object class="wxPanel" name="m_panelPageEnter">
+                    <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
+                    <object class="wxFlexGridSizer" name="fgSizer3">
+                      <vgap>0</vgap>
+                      <hgap>0</hgap>
+                      <growablerows>0</growablerows>
+                      <growablecols>0,1</growablecols>
+                      <rows>2</rows>
+                      <cols>2</cols>
+                      <object class="sizeritem">
+                        <flag>wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT</flag>
+                        <border>5</border>
+                        <option>0</option>
+                        <object class="wxStaticText" name="m_staticTextUserName">
+                          <label>Nome de usuário</label>
+                          <wrap>-1</wrap>
+                        </object>
+                      </object>
+                      <object class="sizeritem">
+                        <flag>wxALL|wxALIGN_CENTER_VERTICAL</flag>
+                        <border>5</border>
+                        <option>0</option>
+                        <object class="wxTextCtrl" name="m_textCtrlUserName">
+                          <value></value>
+                          <maxlength>0</maxlength>
+                        </object>
+                      </object>
+                      <object class="spacer">
+                        <flag>wxEXPAND</flag>
+                        <border>5</border>
+                        <option>1</option>
+                        <size>0,0</size>
+                      </object>
+                      <object class="sizeritem">
+                        <flag>wxALL|wxALIGN_RIGHT|wxALIGN_BOTTOM</flag>
+                        <border>5</border>
+                        <option>0</option>
+                        <object class="wxButton" name="m_buttonFollowOn">
+                          <label>Avançar</label>
+                          <default>0</default>
+                          <auth_needed>0</auth_needed>
+                          <markup>0</markup>
+                          <bitmap/>
                         </object>
                       </object>
                     </object>
@@ -128,10 +224,56 @@
               <object class="wxPanel" name="m_panelMainRegister">
                 <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
                 <object class="wxGridSizer" name="gSizerMainRegister">
-                  <rows>3</rows>
+                  <rows>4</rows>
                   <cols>2</cols>
                   <vgap>0</vgap>
                   <hgap>0</hgap>
+                  <object class="sizeritem">
+                    <flag>wxEXPAND | wxALL</flag>
+                    <border>5</border>
+                    <option>1</option>
+                    <object class="wxPanel" name="m_panelFifth">
+                      <style>wxTAB_TRAVERSAL</style>
+                      <object class="wxGridSizer" name="gSizer9">
+                        <rows>1</rows>
+                        <cols>1</cols>
+                        <vgap>0</vgap>
+                        <hgap>0</hgap>
+                        <object class="sizeritem">
+                          <flag>wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT</flag>
+                          <border>5</border>
+                          <option>0</option>
+                          <object class="wxStaticText" name="m_staticTextUserName1">
+                            <label>Nome de Usuário</label>
+                            <wrap>-1</wrap>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                  </object>
+                  <object class="sizeritem">
+                    <flag>wxEXPAND | wxALL</flag>
+                    <border>5</border>
+                    <option>1</option>
+                    <object class="wxPanel" name="m_panelSixth">
+                      <style>wxTAB_TRAVERSAL</style>
+                      <object class="wxGridSizer" name="gSizer10">
+                        <rows>1</rows>
+                        <cols>1</cols>
+                        <vgap>0</vgap>
+                        <hgap>0</hgap>
+                        <object class="sizeritem">
+                          <flag>wxALL|wxALIGN_CENTER_VERTICAL</flag>
+                          <border>5</border>
+                          <option>0</option>
+                          <object class="wxTextCtrl" name="m_textCtrl3">
+                            <value></value>
+                            <maxlength>0</maxlength>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                  </object>
                   <object class="sizeritem">
                     <flag>wxEXPAND | wxALL</flag>
                     <border>5</border>
@@ -224,11 +366,17 @@
                       </object>
                     </object>
                   </object>
-                  <object class="spacer">
-                    <flag>wxEXPAND</flag>
+                  <object class="sizeritem">
+                    <flag>wxALL</flag>
                     <border>5</border>
-                    <option>1</option>
-                    <size>0,0</size>
+                    <option>0</option>
+                    <object class="wxButton" name="m_buttonBack">
+                      <label>Voltar</label>
+                      <default>0</default>
+                      <auth_needed>0</auth_needed>
+                      <markup>0</markup>
+                      <bitmap/>
+                    </object>
                   </object>
                   <object class="sizeritem">
                     <flag>wxALL|wxALIGN_BOTTOM|wxALIGN_RIGHT</flag>
@@ -288,6 +436,7 @@
               <border>5</border>
               <option>0</option>
               <object class="wxChoice" name="m_choiceMeals">
+                <style>wxCB_SORT</style>
                 <selection>0</selection>
                 <content/>
               </object>
