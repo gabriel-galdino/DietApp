@@ -11,8 +11,8 @@
 #include "database_adapter.h"
 
 constexpr const char* kInsertUserSql = R"sql(
-  INSERT INTO users(name)
-  VALUES (:name)
+  INSERT INTO users(username, display_name)
+  VALUES (:username, :display_name)
 )sql";
 
 constexpr const char* kLoadAllUsers = R"sql(
@@ -23,7 +23,7 @@ class SQLiteUserRepository : public UserRepository {
  public:
   SQLiteUserRepository(std::shared_ptr<DatabaseAdapter> db_adapter);
 
-  bool Exists(const std::string& name) const override;
+  bool Exists(const std::string& username) const override;
 
   const User& GetUser(const std::string& name) const override;
 
@@ -40,8 +40,8 @@ class SQLiteUserRepository : public UserRepository {
  private:
   auto FindByName(const std::string& name) const {
     return std::find_if(users_.begin(), users_.end(),
-                        [&name](const User& user) {    //
-                          return user.name() == name;  //
+                        [&name](const User& user) {        //
+                          return user.username() == name;  //
                         });
   }
 

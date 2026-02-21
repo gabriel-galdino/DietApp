@@ -15,20 +15,22 @@
 
 class PresentationTest : public wxApp {
  public:
-  PresentationTest() {}
-
-  virtual bool OnInit() wxOVERRIDE {
-    std::vector<const char*> cmd_line_args;
-    for (int i = 0; i < argc; ++i) {
-      cmd_line_args.push_back(wxString(argv[i]).utf8_string().c_str());
-    }
-    int result =
-        Catch::Session().run(cmd_line_args.size(), cmd_line_args.data());
-    return false;
-  }
+  bool OnInit() override { return true; }
 };
 
-wxIMPLEMENT_APP(PresentationTest);
+wxIMPLEMENT_APP_NO_MAIN(PresentationTest);
+
+int main(int argc, char** argv) {
+  wxEntryStart(argc, argv);
+  wxTheApp->CallOnInit();
+
+  int result = Catch::Session().run(argc, argv);
+
+  wxTheApp->OnExit();
+  wxEntryCleanup();
+
+  return result;
+}
 
 #if wxUSE_UIACTIONSIMULATOR
 
@@ -52,92 +54,130 @@ TEST_CASE("Presentation", "[UI Flow]") {
   test_frame->Move(200, 200);
   REQUIRE(pres.Initialize(xrc_resources, test_frame));
 
-  SECTION("on register button should go to the next page") {
-    REQUIRE(pres.GetBook()->GetSelection() == 0);
+  std::shared_ptr<InitialPage> initial_page = pres.GetInitialPage();
 
-    EventCounter clicked(pres.GetInitialPage()->GetRegisterButton(),
-                         wxEVT_BUTTON);
+  SECTION("Initial Page: On register button click should go to the next page") {
+    REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Initial);
+
+    EventCounter clicked(initial_page->GetRegisterButton(), wxEVT_BUTTON);
 
     wxUIActionSimulator sim;
     wxYield();
 
     //We move in slightly to account for window decorations, we need to yield
     //after every wxUIActionSimulator action to keep everything working in GTK
-    sim.MouseMove(
-        pres.GetInitialPage()->GetRegisterButton()->GetScreenPosition() +
-        wxPoint(10, 10));
+    sim.MouseMove(initial_page->GetRegisterButton()->GetScreenPosition() +
+                  wxPoint(10, 10));
     wxYield();
 
     sim.MouseClick();
     wxYield();
 
     CHECK(clicked.GetCount() == 1);
-    REQUIRE(pres.GetBook()->GetSelection() == 1);
+    REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+    clicked.Clear();
 
-    SECTION("on create button with no data should remain in the same page") {
-      REQUIRE(pres.GetBook()->GetSelection() == 1);
+    std::shared_ptr<RegisterPage> register_page = pres.GetRegisterPage();
+    wxButton* reg_create_button = register_page->GetCreateButton();
+    wxTextCtrl* reg_username_ctrl = register_page->GetUsernameCtrl();
+    wxTextCtrl* reg_display_name_ctrl = register_page->GetDisplayNameCtrl();
+    wxTextCtrl* reg_meal_ctrl = register_page->GetMealCtrl();
+    EventCounter username_updated(reg_username_ctrl, wxEVT_TEXT);
+    EventCounter display_name_updated(reg_display_name_ctrl, wxEVT_TEXT);
+    EventCounter meal_updated(reg_meal_ctrl, wxEVT_TEXT);
 
-      sim.MouseMove(
-          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
-          wxPoint(10, 10));
+    SECTION(
+        "Register Page: On create button with no data should remain in the "
+        "same page") {
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
+
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
       wxYield();
 
       sim.MouseClick();
       wxYield();
 
       CHECK(clicked.GetCount() == 1);
-      REQUIRE(pres.GetBook()->GetSelection() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
     }
 
-    SECTION("on create button save data fails should remain on the same page") {
-      static_cast<FakeApplication*>(app)->WillReturn(false);
-      REQUIRE(pres.GetBook()->GetSelection() == 1);
+    SECTION(
+        "Register Page: On create button save data fails should remain on the "
+        "same page") {
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
 
-      sim.MouseMove(
-          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
-          wxPoint(10, 10));
-      wxYield();
-
-      pres.GetRegisterPage()->GetNameCtrl()->SetFocus();
-      wxYield();
-      sim.Text("John");
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
       wxYield();
 
-      pres.GetRegisterPage()->GetMealCtrl()->SetFocus();
-      wxYield();
-      sim.Text("pre training");
-      wxYield();
+      register_page->GetUsernameCtrl()->SetFocus();
+      sim.Text("artorias");
+      while (reg_username_ctrl->GetValue() != wxString("artorias")) {
+        wxYield();
+      }
+      username_updated.Clear();
+
+      register_page->GetDisplayNameCtrl()->SetFocus();
+      sim.Text("The Abysswalker");
+      while (reg_display_name_ctrl->GetValue() != wxString("The Abysswalker")) {
+        wxYield();
+      }
+      display_name_updated.Clear();
+
+      register_page->GetMealCtrl()->SetFocus();
+      sim.Text("darkness");
+      while (reg_meal_ctrl->GetValue() != wxString("darkness")) {
+        wxYield();
+      }
+      meal_updated.Clear();
 
       sim.MouseClick();
       wxYield();
 
       CHECK(clicked.GetCount() == 1);
-      REQUIRE(pres.GetBook()->GetSelection() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(true);
     }
 
-    SECTION("on create button with valid data should go to the next page") {
-      REQUIRE(pres.GetBook()->GetSelection() == 1);
+    SECTION(
+        "Register Page: On create button with valid data should go to the next "
+        "page") {
+      MealDTO meal{.name = std::string("dragons"), .user_id = 1};
+      static_cast<FakeApplication*>(app)->LoadMealsFromUserWillReturn(meal);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
 
-      sim.MouseMove(
-          pres.GetRegisterPage()->GetCreateButton()->GetScreenPosition() +
-          wxPoint(10, 10));
-      wxYield();
-
-      pres.GetRegisterPage()->GetNameCtrl()->SetFocus();
-      wxYield();
-      sim.Text("John");
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
       wxYield();
 
-      pres.GetRegisterPage()->GetMealCtrl()->SetFocus();
-      wxYield();
-      sim.Text("pre training");
-      wxYield();
+      register_page->GetUsernameCtrl()->SetFocus();
+      sim.Text("ornstein");
+      while (reg_username_ctrl->GetValue() != wxString("ornstein")) {
+        wxYield();
+      }
+      username_updated.Clear();
+
+      register_page->GetDisplayNameCtrl()->SetFocus();
+      sim.Text("Dragon Slayer");
+      while (reg_display_name_ctrl->GetValue() != wxString("Dragon Slayer")) {
+        wxYield();
+      }
+      display_name_updated.Clear();
+
+      register_page->GetMealCtrl()->SetFocus();
+      sim.Text("dragons");
+      while (reg_meal_ctrl->GetValue() != wxString("dragons")) {
+        wxYield();
+      }
+      meal_updated.Clear();
 
       sim.MouseClick();
       wxYield();
 
       CHECK(clicked.GetCount() == 1);
-      REQUIRE(pres.GetBook()->GetSelection() == 2);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Create);
     }
   }
 }

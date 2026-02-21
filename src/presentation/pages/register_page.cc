@@ -1,76 +1,147 @@
 #include "presentation/pages/register_page.h"
 
+#include <iterator>
+
 #include <wx/filename.h>
 #include <wx/simplebook.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
+#include "core/dto/user_dto.h"
 #include "core/i_application.h"
+#include "presentation/error_messages.h"
 #include "presentation/navigation.h"
 
 RegisterPage::RegisterPage(wxPanel* register_page, INavigation* navigator,
                            IApplication* app)
     : register_page_(register_page), navigator_(navigator), app_(app) {
   create_button_ = XRCCTRL(*register_page, "m_buttonCreate", wxButton);
-  if (create_button_ == nullptr) {
-    return;
-  }
-
-  uint filter = wxFILTER_ASCII |  //
-                wxFILTER_EMPTY |  //
-                wxFILTER_INCLUDE_CHAR_LIST;
-  auto name_validator = wxTextValidator(filter, &name_);
-  auto meal_validator = wxTextValidator(filter, &meal_);
-  wxString included_chars = "ç~^´";
-  name_validator.AddCharIncludes(included_chars);
-  meal_validator.AddCharIncludes(included_chars);
-
-  name_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlName", wxTextCtrl);
-  name_ctrl_->SetValidator(name_validator);
-  if (name_ctrl_ == nullptr) {
-    return;
-  }
-
+  back_button_ = XRCCTRL(*register_page, "m_buttonBack", wxButton);
+  username_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlUsername", wxTextCtrl);
+  display_name_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlName", wxTextCtrl);
   meal_ctrl_ = XRCCTRL(*register_page_, "m_textCtrlMeal", wxTextCtrl);
+
+  wxASSERT(create_button_);
+  wxASSERT(back_button_);
+  wxASSERT(username_ctrl_);
+  wxASSERT(display_name_ctrl_);
+  wxASSERT(meal_ctrl_);
+
+  uint filter_for_alphanum = wxFILTER_ALPHANUMERIC | wxFILTER_EMPTY;
+  auto username_validator = wxTextValidator(filter_for_alphanum, &username_);
+
+  uint filter_for_ascii = wxFILTER_ASCII | wxFILTER_EMPTY;
+  auto display_name_validator =
+      wxTextValidator(filter_for_ascii, &display_name_);
+  auto meal_validator = wxTextValidator(filter_for_ascii, &meal_);
+
+  username_ctrl_->SetValidator(username_validator);
+  display_name_ctrl_->SetValidator(display_name_validator);
   meal_ctrl_->SetValidator(meal_validator);
-  if (meal_ctrl_ == nullptr) {
-    return;
-  }
 
   create_button_->Bind(wxEVT_BUTTON, &RegisterPage::OnButtonCreate, this,
                        XRCID(create_button_->GetName()));
+  back_button_->Bind(wxEVT_BUTTON, &RegisterPage::OnButtonBack, this,
+                     XRCID(back_button_->GetName()));
 }
 
 void RegisterPage::OnButtonCreate(wxCommandEvent& event) {
-  name_ctrl_->TransferDataFromWindow();
-  auto name_validator =
-      wxDynamicCast(name_ctrl_->GetValidator(), wxTextValidator);
-  if (name_validator->IsValid(name_).empty() == false) {
-    ShowError(std::string("Campo nome é inválido."));
+  if (ValidateTextCtrl(username_ctrl_, username_, kUserNameErrMsg) == false) {
     return;
   }
 
-  meal_ctrl_->TransferDataFromWindow();
-  auto meal_validator =
-      wxDynamicCast(meal_ctrl_->GetValidator(), wxTextValidator);
-  if (meal_validator->IsValid(meal_).empty() == false) {
-    ShowError(std::string("Campo refeição é inválido."));
+  if (ValidateTextCtrl(display_name_ctrl_, display_name_, kDisplayNameErrMsg) ==
+      false) {
     return;
   }
 
-  if (app_->AddMealToUser(name_.utf8_string(), meal_.utf8_string()) == false) {
-    ShowError(std::string("Falha em salvar dados."));
+  if (ValidateTextCtrl(meal_ctrl_, meal_, kMealNameErrMsg) == false) {
     return;
   }
 
-  auto user_meals = app_->LoadMealsFromUser(name_.utf8_string());
+  if (current_action_() == false) {
+    return;
+  }
 
-  navigator_->NavigateToCreatePageWithMeals(user_meals);
+  auto meals = app_->LoadMealsFromUser(username_.utf8_string());
+  auto it = FindCurrentMealPos(meals);
+  int selected_index = std::distance(meals.begin(), it);
+  MealsFromUserDTO data{.meals = meals, .selected_meal = selected_index};
+  navigator_->NavigateToCreatePageWithMeals(std::move(data));
 }
 
-void RegisterPage::ShowError(const std::string& err_msg) {
+void RegisterPage::ShowError(const char* err_msg) {
   if (app_->IsTestsMode() == false) {
-    wxMessageBox(wxString(wxString::FromUTF8(err_msg)), wxT("Erro"),
-                 wxICON_ERROR);
+    wxMessageBox(wxString::FromUTF8(err_msg), wxT("Erro"), wxICON_ERROR);
   }
+}
+
+void RegisterPage::OnButtonBack(wxCommandEvent& event) {
+  navigator_->NavigateTo(PageId::Initial);
+  ResetTexCtrls();
+}
+
+void RegisterPage::LoadExistingUser(const UserDTO& user_data) {
+  username_ = wxString(wxString::FromUTF8(user_data.username));
+  display_name_ = wxString(wxString::FromUTF8(user_data.display_name));
+  username_ctrl_->TransferDataToWindow();
+  display_name_ctrl_->TransferDataToWindow();
+  username_ctrl_->SetEditable(false);
+  display_name_ctrl_->SetEditable(false);
+}
+
+void RegisterPage::ResetTexCtrls() {
+  username_ctrl_->SetEditable(true);
+  display_name_ctrl_->SetEditable(true);
+  meal_ctrl_->SetEditable(true);
+}
+
+void RegisterPage::ConfigureForNewUser() {
+  create_button_->SetLabel(wxString::FromUTF8(kCreateUserLabel));
+  current_action_ = [this]() {
+    return OnButtonCreateWithNewUser();
+  };
+}
+
+void RegisterPage::ConfigureForExistingUser() {
+  create_button_->SetLabel(wxString::FromUTF8(kAddMealLabel));
+  current_action_ = [this]() {
+    return OnButtonCreateWithExistingUser();
+  };
+}
+
+bool RegisterPage::OnButtonCreateWithNewUser() {
+  CreateUserWithMealDTO data = {.username = username_.utf8_string(),
+                                .display_name = display_name_.utf8_string(),
+                                .meal_name = meal_.utf8_string()};
+  if (app_->CreateUserWithMeal(std::move(data)) == false) {
+    ShowError(kCreateUserFailedErrMsg);
+    return false;
+  }
+
+  return true;
+}
+
+bool RegisterPage::OnButtonCreateWithExistingUser() {
+  ResetTexCtrls();
+  AddMealToUserDTO data = {.username = username_.utf8_string(),
+                           .meal_name = meal_.utf8_string()};
+  if (app_->AddMealToUser(std::move(data)) == false) {
+    ShowError(kMealAddFailedErrMsg);
+    return false;
+  }
+
+  return true;
+}
+
+bool RegisterPage::ValidateTextCtrl(wxTextCtrl* ctrl, wxString& data,
+                                    const char* err_msg) {
+  ctrl->TransferDataFromWindow();
+  auto validator = wxDynamicCast(ctrl->GetValidator(), wxTextValidator);
+  if (validator->IsValid(data).empty() == false) {
+    ShowError(err_msg);
+    return false;
+  }
+
+  return true;
 }

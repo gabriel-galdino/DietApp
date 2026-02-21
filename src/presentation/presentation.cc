@@ -5,7 +5,6 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
-#include "core/domain/meal.h"
 #include "presentation/presentation.h"
 
 Presentation::Presentation(IApplication* app) : app_(app) {}
@@ -48,7 +47,19 @@ void Presentation::NavigateTo(PageId page) {
   book_->SetSelection(static_cast<size_t>(page));
 }
 
-void Presentation::NavigateToCreatePageWithMeals(std::vector<Meal> meals) {
-  create_page_->SetAvailableChoices(meals);
+void Presentation::NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) {
+  create_page_->SetAvailableChoices(data);
   NavigateTo(PageId::Create);
 }
+
+void Presentation::NavigateToRegisterPageWithExistingUser(
+    const UserDTO& user_data) {
+  register_page_->LoadExistingUser(user_data);
+  register_page_->ConfigureForExistingUser();
+  book_->SetSelection(static_cast<size_t>(PageId::Register));
+}
+
+void Presentation::NavigateToRegisterPageWithNewUser() {
+  register_page_->ConfigureForNewUser();
+  book_->SetSelection(static_cast<size_t>(PageId::Register));
+};

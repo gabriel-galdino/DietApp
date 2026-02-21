@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "core/domain/meal.h"
+#include "core/dto/meal_dto.h"
+#include "core/dto/user_dto.h"
 #include "core/i_application.h"
 
 class FakeApplication : public IApplication {
@@ -15,14 +16,32 @@ class FakeApplication : public IApplication {
 
   bool IsTestsMode() const override { return true; }
 
-  bool AddMealToUser(const std::string& name, const std::string& meal) override;
+  bool CreateUserWithMeal(const CreateUserWithMealDTO& data) override;
 
-  std::vector<Meal> LoadMealsFromUser(const std::string& name) override;
+  bool AddMealToUser(const AddMealToUserDTO& data) override;
 
-  void WillReturn(bool success) { success_ = success; }
+  std::vector<MealDTO> LoadMealsFromUser(const std::string& name) override;
+
+  bool DoesUserExist(const std::string& username) override;
+
+  UserDTO GetUserData(const std::string& username) override;
+
+  void AddMealToUserWillReturn(bool success) {
+    add_meal_to_user_return_ = success;
+  }
+
+  void LoadMealsFromUserWillReturn(const MealDTO& meal_data) {
+    meals_.push_back(meal_data);
+  }
+
+  void DoesUserExistsWillReturn(bool success) {
+    does_user_exists_return_ = success;
+  }
 
  private:
-  bool success_ = true;
+  bool add_meal_to_user_return_ = true;
+  bool does_user_exists_return_ = false;
+  std::vector<MealDTO> meals_;
 };
 
 #endif  // DIETAPP_INCLUDE_TEST_APPLICATION_H

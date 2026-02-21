@@ -24,7 +24,8 @@ jobs:
               libgtk-3-dev \
               cmake \
               catch2 \
-              build-essential
+              build-essential \
+              xvfb
               
           wx-config --version-full
           dpkg -l libwxgtk3.2-1t64 | grep ${{ env.WXWIDGETS_VERSION }}
@@ -32,8 +33,12 @@ jobs:
       - name: Configure build
         run: |
           mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DBUILD_TESTING=ON ..
 
       - name: Compile
         run: |
-          cd build && cmake --build . --config Release
+          cd build && cmake --build .
+
+      - name: Run Tests
+        run: |
+          cd build && xvfb-run --auto-servernum -- ./test/presentation_test

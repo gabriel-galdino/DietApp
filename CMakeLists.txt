@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
-
 project(dietapp VERSION 0.1.0)
+
+option(BUILD_TESTING "Build tests" ON)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -61,20 +62,22 @@ if(NOT WXSQLITE3_FOUND)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(test)
 
 add_executable(dietapp)
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(BUILD_RUNTIME_DIR ${CMAKE_BINARY_DIR}/bin)
-
-    set_target_properties(dietapp PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${BUILD_RUNTIME_DIR}
-    )
-
-    file(COPY
-        ${CMAKE_SOURCE_DIR}/src/presentation/xrc
-        DESTINATION ${CMAKE_BINARY_DIR}/share/dietapp
-    )
+if(BUILD_TESTING)
+  add_subdirectory(test)
+  add_custom_target(copy_test_resources ALL
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_BINARY_DIR}/share/dietapp
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_BINARY_DIR}/bin
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/src/presentation/xrc
+          ${CMAKE_BINARY_DIR}/share/dietapp/xrc
+  )
+  set_target_properties(dietapp PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  )
 endif()
 
 target_link_libraries(dietapp PRIVATE application database presentation)

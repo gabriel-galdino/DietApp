@@ -5,7 +5,7 @@
 
 #include <wx/wx.h>
 
-#include "core/domain/meal.h"
+#include "core/dto/meal_dto.h"
 #include "core/i_application.h"
 #include "presentation/navigation.h"
 
@@ -15,7 +15,7 @@ class CreatePage {
 
   wxChoice* choice_meals() { return choice_meals_; }
 
-  bool SetAvailableChoices(std::vector<Meal> meals);
+  bool SetAvailableChoices(const MealsFromUserDTO& data);
 
  private:
   wxPanel* create_page_;

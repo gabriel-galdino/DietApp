@@ -9,8 +9,8 @@ class UserRepository {
  public:
   virtual ~UserRepository() = default;
 
-  virtual bool Exists(const std::string& name) const = 0;
-  virtual const User& GetUser(const std::string& name) const = 0;
+  virtual bool Exists(const std::string& username) const = 0;
+  virtual const User& GetUser(const std::string& username) const = 0;
   virtual bool AddUser(User& user) = 0;
   virtual bool DelUser(const User& user) = 0;
   virtual bool UpdateUser(const User& user) = 0;

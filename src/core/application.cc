@@ -7,6 +7,9 @@
 #include <wx/wxsqlite3.h>
 
 #include "core/domain/meal.h"
+#include "core/domain/user.h"
+#include "core/dto/meal_dto.h"
+#include "core/dto/user_dto.h"
 #include "core/ports/repository/meal_repository.h"
 #include "core/ports/repository/user_repository.h"
 #include "database/database_manager.h"
@@ -56,19 +59,19 @@ bool Application::ValidateUserCredentials(const std::string& username,
   return false;
 }
 
-bool Application::AddMealToUser(const std::string& user_name,
-                                const std::string& meal_name) {
+bool Application::CreateUserWithMeal(const CreateUserWithMealDTO& data) {
+
+  if (user_repo_->Exists(data.username)) {
+    return false;
+  }
+
   try {
     db_adapter_->BeginTransaction();
 
-    User user(user_name);
-    if (user_repo_->Exists(user.name()) == false) {
-      user_repo_->AddUser(user);
-    } else {
-      user = user_repo_->GetUser(user_name);
-    }
+    User user(-1, data.username, data.display_name);
+    user_repo_->AddUser(user);
 
-    Meal meal(meal_name);
+    Meal meal(data.meal_name);
     meal_repo_->AddMeal(meal, user.id());
 
     db_adapter_->CommitTransaction();
@@ -79,12 +82,48 @@ bool Application::AddMealToUser(const std::string& user_name,
   return true;
 }
 
-std::vector<Meal> Application::LoadMealsFromUser(const std::string& user_name) {
+bool Application::AddMealToUser(const AddMealToUserDTO& data) {
   try {
-    auto user = user_repo_->GetUser(user_name);
-    return meal_repo_->GetMealsFromUser(user.id());
+    db_adapter_->BeginTransaction();
+
+    const auto user = user_repo_->GetUser(data.username);
+    Meal meal(data.meal_name);
+    meal_repo_->AddMeal(meal, user.id());
+
+    db_adapter_->CommitTransaction();
+  } catch (const wxSQLite3Exception& e) {
+    db_adapter_->RollbackTransaction();
+    return false;
+  }
+  return true;
+}
+
+std::vector<MealDTO> Application::LoadMealsFromUser(
+    const std::string& username) {
+  try {
+    auto user = user_repo_->GetUser(username);
+    auto meals = meal_repo_->GetMealsFromUser(user.id());
+    std::vector<MealDTO> meals_data;
+    MealDTO meal_data;
+    for (const auto& meal : meals) {
+      meal_data.name = meal.name();
+      meal_data.user_id = meal.user_id();
+      meals_data.push_back(meal_data);
+    }
+    return meals_data;
   } catch (const wxSQLite3Exception& e) {
     void();
   }
   return {};
+}
+
+bool Application::DoesUserExist(const std::string& username) {
+  return user_repo_->Exists(username);
+}
+
+UserDTO Application::GetUserData(const std::string& username) {
+  const auto user = user_repo_->GetUser(username);
+  UserDTO user_data = {.username = user.username(),
+                       .display_name = user.display_name()};
+  return user_data;
 }

@@ -8,13 +8,13 @@
 InitialPage::InitialPage(wxPanel* initial_page, INavigation* navigator)
     : initial_page_(initial_page), navigator_(navigator) {
   register_button_ = XRCCTRL(*initial_page, "m_buttonRegister", wxButton);
-  if (register_button_ == nullptr) {
-    return;
-  }
+
+  wxASSERT(register_button_);
+
   register_button_->Bind(wxEVT_BUTTON, &InitialPage::OnButtonRegister, this,
                          XRCID(register_button_->GetName()));
 }
 
 void InitialPage::OnButtonRegister(wxCommandEvent& event) {
-  navigator_->NavigateTo(PageId::Register);
+  navigator_->NavigateToRegisterPageWithNewUser();
 }

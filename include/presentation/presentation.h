@@ -8,7 +8,8 @@
 #include <wx/simplebook.h>
 #include <wx/wx.h>
 
-#include "core/domain/meal.h"
+#include "core/dto/meal_dto.h"
+#include "core/dto/user_dto.h"
 #include "core/i_application.h"
 #include "presentation/navigation.h"
 #include "presentation/pages/create_page.h"
@@ -19,7 +20,12 @@ class Presentation : public INavigation {
  public:
   void NavigateTo(PageId page) override;
 
-  void NavigateToCreatePageWithMeals(std::vector<Meal> meals) override;
+  void NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) override;
+
+  void NavigateToRegisterPageWithNewUser() override;
+
+  void NavigateToRegisterPageWithExistingUser(
+      const UserDTO& user_data) override;
 
   Presentation(IApplication* app);
 

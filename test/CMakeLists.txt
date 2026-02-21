@@ -5,6 +5,7 @@ add_executable(presentation_test
   wx/testableframe.cc
   core/fake_application.cc
 )
+add_dependencies(presentation_test copy_test_resources)
 target_compile_definitions(presentation_test PRIVATE
     __WXGTK__=1
     __WXGTK3__=1
