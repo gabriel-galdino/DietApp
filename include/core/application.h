@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "core/domain/meal.h"
+#include "core/dto/meal_dto.h"
+#include "core/dto/user_dto.h"
 #include "core/i_application.h"
 
 // Forward declarations
@@ -38,10 +39,15 @@ class Application : public IApplication {
 
   bool IsTestsMode() const override { return false; }
 
-  bool AddMealToUser(const std::string& user_name,
-                     const std::string& meal_name) override;
+  bool CreateUserWithMeal(const CreateUserWithMealDTO& data) override;
 
-  std::vector<Meal> LoadMealsFromUser(const std::string& user_name) override;
+  bool AddMealToUser(const AddMealToUserDTO& data) override;
+
+  std::vector<MealDTO> LoadMealsFromUser(const std::string& username) override;
+
+  bool DoesUserExist(const std::string& username) override;
+
+  UserDTO GetUserData(const std::string& username) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;

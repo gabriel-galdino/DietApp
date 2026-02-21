@@ -10,18 +10,19 @@ SQLiteUserRepository::SQLiteUserRepository(
     std::shared_ptr<DatabaseAdapter> db_adapter)
     : db_adapter_(db_adapter) {}
 
-bool SQLiteUserRepository::Exists(const std::string& name) const {
-  return FindByName(name) != users_.end();
+bool SQLiteUserRepository::Exists(const std::string& username) const {
+  return FindByName(username) != users_.end();
 }
 
-const User& SQLiteUserRepository::GetUser(const std::string& name) const {
-  auto it = FindByName(name);
+const User& SQLiteUserRepository::GetUser(const std::string& username) const {
+  auto it = FindByName(username);
   return *it;
 }
 
 bool SQLiteUserRepository::AddUser(User& user) {
   auto stmt = db_adapter_->Prepare(kInsertUserSql);
-  stmt->Bind(":name", user.name());
+  stmt->Bind(":username", user.username());
+  stmt->Bind(":display_name", user.display_name());
   bool success = stmt->Execute();
   if (success == false) {
     return false;
@@ -47,7 +48,8 @@ bool SQLiteUserRepository::LoadAllUsers() {
   auto stmt = db_adapter_->Prepare(kLoadAllUsers);
   auto result_set = stmt->ExecuteQuery();
   while (result_set->NextRow()) {
-    User user(result_set->GetInt("id"), result_set->GetString("name"));
+    User user(result_set->GetInt("id"), result_set->GetString("username"),
+              result_set->GetString("display_name"));
     users_.insert(user);
   }
   return true;

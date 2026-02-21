@@ -5,11 +5,13 @@
 
 class User {
  public:
-  User(int id, const std::string& name);
+  User(int id, const std::string& username, const std::string& display_name);
 
-  User(const std::string& name);
+  User(const std::string& username);
 
-  std::string name() const { return name_; }
+  std::string username() const { return username_; }
+
+  std::string display_name() const { return display_name_; }
 
   void set_id(int id) { id_ = id; }
 
@@ -21,7 +23,8 @@ class User {
 
  private:
   int id_{-1};
-  std::string name_;
+  std::string username_;
+  std::string display_name_;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_DOMAIN_USER_H

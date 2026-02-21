@@ -3,12 +3,24 @@
 #include <string>
 #include <vector>
 
-#include "core/domain/meal.h"
-
-bool FakeApplication::AddMealToUser(const std::string&, const std::string&) {
-  return success_;
+bool FakeApplication::CreateUserWithMeal(const CreateUserWithMealDTO& data) {
+  return add_meal_to_user_return_;
 }
 
-std::vector<Meal> FakeApplication::LoadMealsFromUser(const std::string& name) {
-  return std::vector<Meal>();
+bool FakeApplication::AddMealToUser(const AddMealToUserDTO& data) {
+  return true;
+}
+
+std::vector<MealDTO> FakeApplication::LoadMealsFromUser(
+    const std::string& name) {
+  return meals_;
+}
+
+bool FakeApplication::DoesUserExist(const std::string& username) {
+  return does_user_exists_return_;
+}
+
+UserDTO FakeApplication::GetUserData(const std::string& username) {
+  UserDTO user_data = {.username = username, .display_name = ""};
+  return user_data;
 }
