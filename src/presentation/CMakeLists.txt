@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 add_library(presentation OBJECT
+  pages/enter_page.cc
   pages/initial_page.cc
   pages/register_page.cc
   pages/create_page.cc

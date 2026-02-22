@@ -34,10 +34,12 @@ bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
   wxPanel* initial_page = XRCCTRL(*book_, "m_panelPageInit", wxPanel);
   wxPanel* register_page = XRCCTRL(*book_, "m_panelPageRegister", wxPanel);
   wxPanel* create_page = XRCCTRL(*book_, "m_panelPageCreate", wxPanel);
+  wxPanel* enter_page = XRCCTRL(*book_, "m_panelPageEnter", wxPanel);
 
   initial_page_ = std::make_shared<InitialPage>(initial_page, this);
   register_page_ = std::make_shared<RegisterPage>(register_page, this, app_);
   create_page_ = std::make_shared<CreatePage>(create_page, this, app_);
+  enter_page_ = std::make_shared<EnterPage>(enter_page, this, app_);
 
   main_frame_->Show();
   return true;

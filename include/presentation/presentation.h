@@ -13,6 +13,7 @@
 #include "core/i_application.h"
 #include "presentation/navigation.h"
 #include "presentation/pages/create_page.h"
+#include "presentation/pages/enter_page.h"
 #include "presentation/pages/initial_page.h"
 #include "presentation/pages/register_page.h"
 
@@ -46,6 +47,7 @@ class Presentation : public INavigation {
   std::shared_ptr<InitialPage> initial_page_;
   std::shared_ptr<RegisterPage> register_page_;
   std::shared_ptr<CreatePage> create_page_;
+  std::shared_ptr<EnterPage> enter_page_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PRESENTATION_H
