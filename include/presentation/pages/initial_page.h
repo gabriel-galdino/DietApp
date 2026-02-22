@@ -11,11 +11,14 @@ class InitialPage {
 
   void OnButtonRegister(wxCommandEvent& event);
 
+  void OnButtonEnter(wxCommandEvent& event);
+
   wxButton* GetRegisterButton() { return register_button_; }
 
  private:
   wxPanel* initial_page_{nullptr};
   wxButton* register_button_{nullptr};
+  wxButton* enter_button_{nullptr};
   INavigation* navigator_{nullptr};
 };
 

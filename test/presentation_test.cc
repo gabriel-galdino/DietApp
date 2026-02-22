@@ -56,7 +56,8 @@ TEST_CASE("Presentation", "[UI Flow]") {
 
   std::shared_ptr<InitialPage> initial_page = pres.GetInitialPage();
 
-  SECTION("Initial Page: On register button click should go to the next page") {
+  SECTION("InitialPageRegisterButtonSucceed",
+          "On register button click should go to the RegisterPage.") {
     REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Initial);
 
     EventCounter clicked(initial_page->GetRegisterButton(), wxEVT_BUTTON);
@@ -86,9 +87,9 @@ TEST_CASE("Presentation", "[UI Flow]") {
     EventCounter display_name_updated(reg_display_name_ctrl, wxEVT_TEXT);
     EventCounter meal_updated(reg_meal_ctrl, wxEVT_TEXT);
 
-    SECTION(
-        "Register Page: On create button with no data should remain in the "
-        "same page") {
+    SECTION("RegisterPageCreateButtonNoData",
+            "On create button click with all forms empty should remain in the "
+            "same page") {
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
       EventCounter clicked(reg_create_button, wxEVT_BUTTON);
 
@@ -102,9 +103,105 @@ TEST_CASE("Presentation", "[UI Flow]") {
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
     }
 
-    SECTION(
-        "Register Page: On create button save data fails should remain on the "
-        "same page") {
+    SECTION("RegisterPageCreateButtonNoUsername",
+            "On create button click without filling the username field should "
+            "remain in the same page.") {
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
+
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
+      wxYield();
+
+      register_page->GetDisplayNameCtrl()->SetFocus();
+      sim.Text("The Abysswalker");
+      while (reg_display_name_ctrl->GetValue() != wxString("The Abysswalker")) {
+        wxYield();
+      }
+      display_name_updated.Clear();
+
+      register_page->GetMealCtrl()->SetFocus();
+      sim.Text("darkness");
+      while (reg_meal_ctrl->GetValue() != wxString("darkness")) {
+        wxYield();
+      }
+      meal_updated.Clear();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(true);
+    }
+
+    SECTION("RegisterPageCreateButtonNoDisplayName",
+            "On create button click without filling the name field should "
+            "remain in the same page.") {
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
+
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
+      wxYield();
+
+      register_page->GetUsernameCtrl()->SetFocus();
+      sim.Text("artorias");
+      while (reg_username_ctrl->GetValue() != wxString("artorias")) {
+        wxYield();
+      }
+      username_updated.Clear();
+
+      register_page->GetMealCtrl()->SetFocus();
+      sim.Text("darkness");
+      while (reg_meal_ctrl->GetValue() != wxString("darkness")) {
+        wxYield();
+      }
+      meal_updated.Clear();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(true);
+    }
+
+    SECTION("RegisterPageCreateButtonNoMealName",
+            "On create button click without filling the meal field should "
+            "remain in the same page.") {
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      EventCounter clicked(reg_create_button, wxEVT_BUTTON);
+
+      sim.MouseMove(reg_create_button->GetScreenPosition() + wxPoint(10, 10));
+      wxYield();
+
+      register_page->GetUsernameCtrl()->SetFocus();
+      sim.Text("artorias");
+      while (reg_username_ctrl->GetValue() != wxString("artorias")) {
+        wxYield();
+      }
+      username_updated.Clear();
+
+      register_page->GetDisplayNameCtrl()->SetFocus();
+      sim.Text("The Abysswalker");
+      while (reg_display_name_ctrl->GetValue() != wxString("The Abysswalker")) {
+        wxYield();
+      }
+      display_name_updated.Clear();
+
+      sim.MouseClick();
+      wxYield();
+
+      CHECK(clicked.GetCount() == 1);
+      REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
+      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(true);
+    }
+
+    SECTION("RegisterPageCreateButtonAppFails",
+            "On create button click the application layer returns false should "
+            "remain in the same page.") {
       static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
       EventCounter clicked(reg_create_button, wxEVT_BUTTON);
@@ -142,8 +239,9 @@ TEST_CASE("Presentation", "[UI Flow]") {
     }
 
     SECTION(
-        "Register Page: On create button with valid data should go to the next "
-        "page") {
+        "RegisterPageCreateButtonSucceed"
+        "On create button click filling all the required fields and no error "
+        "occurs on application layer should go to CreatePage.") {
       MealDTO meal{.name = std::string("dragons"), .user_id = 1};
       static_cast<FakeApplication*>(app)->LoadMealsFromUserWillReturn(meal);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
