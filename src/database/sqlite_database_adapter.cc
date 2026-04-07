@@ -9,20 +9,18 @@
 #include "database/sqlite_statement.h"
 
 bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
-  if (database.IsOk()) {
-    database_.Open(database.GetFullPath());
-  } else {
+  if (database.IsOk() == false) {
     wxStandardPaths& paths = wxStandardPaths::Get();
     database = wxFileName(paths.GetDataDir(), "");
     database.SetFullName("dietapp.db");
-    database_.Open(database.GetFullPath());
   }
+  database_.Open(database.GetFullPath());
 
   if (database_.IsOpen() == false) {
     return false;
   }
 
-  if (database_.IsForeignKeySupportEnabled()) {
+  if (database_.IsForeignKeySupportEnabled() == false) {
     database_.EnableForeignKeySupport(true);
   }
 

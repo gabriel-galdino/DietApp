@@ -3,7 +3,7 @@ project(dietapp VERSION 0.1.0)
 
 option(BUILD_TESTING "Build tests" ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 execute_process(
@@ -38,8 +38,7 @@ if(NOT PKG_CONFIG_FOUND)
             "sudo apt install pkg-config")
 endif()
 
-pkg_check_modules(CATCH2 REQUIRED
-  catch2-with-main)
+pkg_check_modules(CATCH2 REQUIRED catch2-with-main)
 if(NOT CATCH2_FOUND)
     message(FATAL_ERROR "Catch2 not found! To do checking:\n"
     "1. Installation: sudo apt install catch2\n")
@@ -61,9 +60,12 @@ if(NOT WXSQLITE3_FOUND)
           "2. Search paths: $ENV{PKG_CONFIG_PATH}")
 endif()
 
+add_subdirectory(OpenXLSX)
 add_subdirectory(src)
 
 add_executable(dietapp)
+target_link_libraries(dietapp PRIVATE application database presentation)
+
 if(BUILD_TESTING)
   add_subdirectory(test)
   add_custom_target(copy_test_resources ALL
@@ -71,19 +73,23 @@ if(BUILD_TESTING)
           ${CMAKE_BINARY_DIR}/share/dietapp
       COMMAND ${CMAKE_COMMAND} -E make_directory
           ${CMAKE_BINARY_DIR}/bin
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+          ${CMAKE_BINARY_DIR}/lib
       COMMAND ${CMAKE_COMMAND} -E copy_directory
           ${CMAKE_SOURCE_DIR}/src/presentation/xrc
           ${CMAKE_BINARY_DIR}/share/dietapp/xrc
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_SOURCE_DIR}/spreadsheet
+          ${CMAKE_BINARY_DIR}/share/dietapp/spreadsheet
   )
   set_target_properties(dietapp PROPERTIES
       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+      ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
   )
 endif()
-
-target_link_libraries(dietapp PRIVATE application database presentation)
 
 include(GNUInstallDirs)
 install(TARGETS dietapp DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY src/presentation/xrc
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-

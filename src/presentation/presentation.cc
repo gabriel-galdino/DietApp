@@ -50,7 +50,7 @@ void Presentation::NavigateTo(PageId page) {
 }
 
 void Presentation::NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) {
-  create_page_->SetAvailableChoices(data);
+  create_page_->SetMealsFromUser(data);
   NavigateTo(PageId::Create);
 }
 
@@ -65,3 +65,7 @@ void Presentation::NavigateToRegisterPageWithNewUser() {
   register_page_->ConfigureForNewUser();
   book_->SetSelection(static_cast<size_t>(PageId::Register));
 };
+
+bool Presentation::FillFoodChoices(const std::vector<FoodDTO>& data) {
+  return create_page_->FillFoodChoices(data);
+}

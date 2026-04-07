@@ -10,10 +10,15 @@ class UserRepository {
   virtual ~UserRepository() = default;
 
   virtual bool Exists(const std::string& username) const = 0;
+
   virtual const User& GetUser(const std::string& username) const = 0;
+
   virtual bool AddUser(User& user) = 0;
+
   virtual bool DelUser(const User& user) = 0;
+
   virtual bool UpdateUser(const User& user) = 0;
+
   virtual bool LoadAllUsers() = 0;
 
   virtual bool ValidateCredentials() = 0;

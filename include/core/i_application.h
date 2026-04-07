@@ -10,6 +10,11 @@
 class IApplication {
  public:
   virtual ~IApplication() = default;
+
+  virtual bool Initialize() = 0;
+
+  virtual bool Shutdown() = 0;
+
   virtual bool IsTestsMode() const = 0;
 
   virtual bool CreateUserWithMeal(const CreateUserWithMealDTO& data) = 0;
@@ -18,7 +23,9 @@ class IApplication {
 
   virtual std::vector<MealDTO> LoadMealsFromUser(
       const std::string& username) = 0;
+
   virtual bool DoesUserExist(const std::string& username) = 0;
+
   virtual UserDTO GetUserData(const std::string& username) = 0;
 };
 

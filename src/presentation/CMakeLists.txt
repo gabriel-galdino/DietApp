@@ -5,6 +5,7 @@ add_library(presentation OBJECT
   pages/initial_page.cc
   pages/register_page.cc
   pages/create_page.cc
+  nutritional_model.cc
   presentation.cc
 )
 target_compile_definitions(presentation PRIVATE
