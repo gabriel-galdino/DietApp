@@ -6,7 +6,12 @@
 
 bool WxBootstrapApp::OnInit() {
   app_ = new Application();
+  app_->Initialize();
   return true;
+}
+
+int WxBootstrapApp::OnExit() {
+  return app_->Shutdown();
 }
 
 wxIMPLEMENT_APP(WxBootstrapApp);

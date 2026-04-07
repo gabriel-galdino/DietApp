@@ -8,12 +8,14 @@
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 #include "core/i_application.h"
+#include "core/xlsx_service.h"
 
 // Forward declarations
 class DatabaseAdapter;
 class DatabaseManager;
 class UserRepository;
 class MealRepository;
+class FoodRepository;
 class Presentation;
 
 class Application : public IApplication {
@@ -26,9 +28,9 @@ class Application : public IApplication {
 
   bool InitializePresentation(const std::string& databasePath);
 
-  bool InitializeApplicationSettings();
+  bool Initialize() override;
 
-  void Shutdown();
+  bool Shutdown() override;
 
   DatabaseManager* GetDatabaseManager() const;
 
@@ -55,6 +57,8 @@ class Application : public IApplication {
   std::unique_ptr<Presentation> presentation_;
   std::unique_ptr<UserRepository> user_repo_;
   std::unique_ptr<MealRepository> meal_repo_;
+  std::unique_ptr<FoodRepository> food_repo_;
+  std::unique_ptr<XlsxService> xlsx_service_;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_APPLICATION_H

@@ -13,6 +13,8 @@ class WxBootstrapApp : public wxApp {
 
   bool OnInit() override;
 
+  int OnExit() override;
+
  private:
   IApplication* app_{nullptr};
 };

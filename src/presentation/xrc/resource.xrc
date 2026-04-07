@@ -475,12 +475,12 @@
                 <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
                 <object class="wxBoxSizer" name="bSizerRight">
                   <orient>wxVERTICAL</orient>
-                  <object class="sizeritem">
+                  <!-- <object class="sizeritem">
                     <flag>wxALL|wxEXPAND</flag>
                     <border>5</border>
                     <option>1</option>
                     <object class="unknown" name="m_dataViewListCtrlMeal"/>
-                  </object>
+                  </object> -->
                 </object>
               </object>
             </object>

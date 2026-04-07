@@ -8,11 +8,11 @@
 
 #include "core/domain/meal.h"
 #include "core/domain/user.h"
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
-#include "core/ports/repository/meal_repository.h"
-#include "core/ports/repository/user_repository.h"
 #include "database/database_manager.h"
+#include "database/sqlite_food_repository.h"
 #include "database/sqlite_meal_repository.h"
 #include "database/sqlite_user_repository.h"
 #include "presentation/presentation.h"
@@ -22,29 +22,40 @@ Application::Application()
       db_adapter_(db_manager_->CreateAdapter()),
       presentation_(std::make_unique<Presentation>(this)),
       user_repo_(std::make_unique<SQLiteUserRepository>(db_adapter_)),
-      meal_repo_(std::make_unique<SQLiteMealRepository>(db_adapter_)) {
-  wxFileName database;
-  db_adapter_->Initialize(database);
-  wxFileName xrc_resources;
-  presentation_->Initialize(xrc_resources, nullptr);
-  user_repo_->LoadAllUsers();
-  meal_repo_->LoadAllMeals();
-}
+      meal_repo_(std::make_unique<SQLiteMealRepository>(db_adapter_)),
+      food_repo_(std::make_unique<SQLiteFoodRepository>(db_adapter_)),
+      xlsx_service_(std::make_unique<XlsxService>()) {}
 
 Application::~Application() {
   Shutdown();
-  db_adapter_->Shutdown();
 }
 
 bool Application::InitializeDatabase(const std::string& databasePath) {
   return false;
 }
 
-bool Application::InitializeApplicationSettings() {
-  return false;
+bool Application::Initialize() {
+  wxFileName workbook;
+  wxFileName database;
+  wxFileName xrc_resources;
+  std::vector<Food> foods;
+  std::vector<FoodDTO> data;
+  const std::string worksheet_name = "CMVCol taco3";
+
+  db_adapter_->Initialize(database);
+  xlsx_service_->Initialize(workbook);
+  presentation_->Initialize(xrc_resources, nullptr);
+  user_repo_->LoadAllUsers();
+  meal_repo_->LoadAllMeals();
+  xlsx_service_->LoadFoodDataFromSheet(worksheet_name, foods, data);
+  food_repo_->FillFoodsTable(foods);
+  presentation_->FillFoodChoices(data);
+  return true;
 }
 
-void Application::Shutdown() {}
+bool Application::Shutdown() {
+  return db_adapter_->Shutdown();
+}
 
 DatabaseManager* Application::GetDatabaseManager() const {
   return nullptr;
@@ -61,8 +72,10 @@ bool Application::ValidateUserCredentials(const std::string& username,
 
 bool Application::CreateUserWithMeal(const CreateUserWithMealDTO& data) {
 
+  bool success = true;
   if (user_repo_->Exists(data.username)) {
-    return false;
+    success = false;
+    return success;
   }
 
   try {
@@ -76,13 +89,15 @@ bool Application::CreateUserWithMeal(const CreateUserWithMealDTO& data) {
 
     db_adapter_->CommitTransaction();
   } catch (const wxSQLite3Exception& e) {
+    success = false;
     db_adapter_->RollbackTransaction();
-    return false;
+    std::cerr << e.GetMessage() << std::endl;
   }
-  return true;
+  return success;
 }
 
 bool Application::AddMealToUser(const AddMealToUserDTO& data) {
+  bool success = true;
   try {
     db_adapter_->BeginTransaction();
 
@@ -92,29 +107,30 @@ bool Application::AddMealToUser(const AddMealToUserDTO& data) {
 
     db_adapter_->CommitTransaction();
   } catch (const wxSQLite3Exception& e) {
+    success = false;
     db_adapter_->RollbackTransaction();
-    return false;
+    std::cerr << e.GetMessage() << std::endl;
   }
-  return true;
+  return success;
 }
 
 std::vector<MealDTO> Application::LoadMealsFromUser(
     const std::string& username) {
+  std::vector<MealDTO> meals_data;
   try {
     auto user = user_repo_->GetUser(username);
     auto meals = meal_repo_->GetMealsFromUser(user.id());
-    std::vector<MealDTO> meals_data;
     MealDTO meal_data;
     for (const auto& meal : meals) {
       meal_data.name = meal.name();
       meal_data.user_id = meal.user_id();
       meals_data.push_back(meal_data);
     }
-    return meals_data;
   } catch (const wxSQLite3Exception& e) {
-    void();
+    meals_data.clear();
+    std::cerr << e.GetMessage() << std::endl;
   }
-  return {};
+  return meals_data;
 }
 
 bool Application::DoesUserExist(const std::string& username) {

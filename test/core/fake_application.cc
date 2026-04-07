@@ -3,6 +3,14 @@
 #include <string>
 #include <vector>
 
+bool FakeApplication::Initialize() {
+  return true;
+}
+
+bool FakeApplication::Shutdown() {
+  return true;
+}
+
 bool FakeApplication::CreateUserWithMeal(const CreateUserWithMealDTO& data) {
   return add_meal_to_user_return_;
 }

@@ -10,9 +10,9 @@
 
 class FakeApplication : public IApplication {
  public:
-  FakeApplication() = default;
+  bool Initialize() override;
 
-  ~FakeApplication() = default;
+  bool Shutdown() override;
 
   bool IsTestsMode() const override { return true; }
 

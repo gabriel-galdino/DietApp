@@ -3,25 +3,40 @@
 
 #include <vector>
 
+#include <wx/dataview.h>
 #include <wx/wx.h>
 
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/i_application.h"
 #include "presentation/navigation.h"
+#include "presentation/nutritional_model.h"
+
+struct Column {
+  std::string type;
+  std::string name;
+};
 
 class CreatePage {
  public:
   CreatePage(wxPanel* create_page, INavigation* navigator, IApplication* app);
 
-  wxChoice* choice_meals() { return choice_meals_; }
+  wxChoice* user_meals() { return user_meals_; }
 
-  bool SetAvailableChoices(const MealsFromUserDTO& data);
+  bool SetMealsFromUser(const MealsFromUserDTO& data);
+
+  bool FillFoodChoices(const std::vector<FoodDTO>& data);
 
  private:
+  void OnItemSelected(wxCommandEvent& event);
+
   wxPanel* create_page_;
   INavigation* navigator_;
   IApplication* app_;
-  wxChoice* choice_meals_;
+  wxChoice* user_meals_;
+  wxComboBox* food_choices_;
+  wxDataViewCtrl* selected_foods_ctrl_;
+  wxObjectDataPtr<NutritionalModel> model_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PAGES_CREATE_PAGE_H

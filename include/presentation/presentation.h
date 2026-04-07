@@ -8,6 +8,7 @@
 #include <wx/simplebook.h>
 #include <wx/wx.h>
 
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 #include "core/i_application.h"
@@ -39,6 +40,8 @@ class Presentation : public INavigation {
   std::shared_ptr<InitialPage> GetInitialPage() { return initial_page_; }
 
   std::shared_ptr<RegisterPage> GetRegisterPage() { return register_page_; }
+
+  bool FillFoodChoices(const std::vector<FoodDTO>& data);
 
  private:
   IApplication* app_;
