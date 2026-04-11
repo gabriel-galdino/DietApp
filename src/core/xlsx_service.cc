@@ -91,29 +91,29 @@ bool XlsxService::LoadFoodDataFromSheet(const std::string sheet_name,
       return 0.0;
     };
     const std::string display_name = GenerateDisplayName(name);
-    const double protein_per_100g = parseValue(6);  // Column F
-    const double fat_per_100g = parseValue(7);      // Column G
-    const double carb_per_100g = parseValue(9);     // Column I
+    const double proteins_per_100g = parseValue(6);  // Column F
+    const double fats_per_100g = parseValue(7);      // Column G
+    const double carbs_per_100g = parseValue(9);     // Column I
 
     Food food;
     food.set_id(cellId);
     food.set_name(name);
     food.set_display_name(display_name);
-    food.set_protein_per_100g(protein_per_100g);  // Column F
-    food.set_fat_per_100g(fat_per_100g);          // Column G
-    food.set_carb_per_100g(carb_per_100g);        // Column I
+    food.set_proteins_per_100g(proteins_per_100g);  // Column F
+    food.set_fats_per_100g(fats_per_100g);          // Column G
+    food.set_carbs_per_100g(carbs_per_100g);        // Column I
 
     FoodDTO food_data;
     food_data.id = cellId;
     food_data.name = name;
     food_data.name = display_name;
-    food_data.protein_per_100g = protein_per_100g;
-    food_data.fat_per_100g = fat_per_100g;
-    food_data.carb_per_100g = carb_per_100g;
+    food_data.proteins_per_100g = proteins_per_100g;
+    food_data.fats_per_100g = fats_per_100g;
+    food_data.carbs_per_100g = carbs_per_100g;
     data.push_back(food_data);
 
-    if (food.protein_per_100g() > 0 || food.fat_per_100g() > 0 ||
-        food.carb_per_100g() > 0) {
+    if (food.proteins_per_100g() > 0 || food.fats_per_100g() > 0 ||
+        food.carbs_per_100g() > 0) {
       foods.push_back(food);
     }
   }

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 #include "core/i_application.h"
@@ -50,6 +51,8 @@ class Application : public IApplication {
   bool DoesUserExist(const std::string& username) override;
 
   UserDTO GetUserData(const std::string& username) override;
+
+  FoodDTO GetFoodData(const std::string& food_name) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;

@@ -1,5 +1,6 @@
 #include "presentation/pages/create_page.h"
 
+#include <cstdint>
 #include <vector>
 
 #include <wx/dataview.h>
@@ -14,13 +15,13 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
                        IApplication* app)
     : create_page_(create_page), navigator_(navigator), app_(app) {
   user_meals_ = XRCCTRL(*create_page, "m_choiceMeals", wxChoice);
-  food_choices_ = XRCCTRL(*create_page, "m_comboBoxItems", wxComboBox);
+  food_choices_ctrl_ = XRCCTRL(*create_page, "m_comboBoxItems", wxComboBox);
   wxPanel* right_panel = XRCCTRL(*create_page, "m_panelRight", wxPanel);
   selected_foods_ctrl_ = new wxDataViewCtrl(
       right_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize,
       wxDV_ROW_LINES | wxDV_HORIZ_RULES | wxDV_VERT_RULES);
   wxASSERT(user_meals_);
-  wxASSERT(food_choices_);
+  wxASSERT(food_choices_ctrl_);
   wxASSERT(selected_foods_ctrl_);
 
   wxSizer* sizer = right_panel->GetSizer();
@@ -28,10 +29,10 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
 
   const std::vector<Column> columns{
       {.type = "string", .name = ""},
-      {.type = "double", .name = "Proteínas (kcal)"},
-      {.type = "double", .name = "Gorduras (kcal)"},
-      {.type = "double", .name = "Carboidratos (kcal)"},
-      {.type = "double", .name = "Parcial (kcal)"},
+      {.type = "string", .name = "Proteínas (kcal)"},
+      {.type = "string", .name = "Carboidratos (kcal)"},
+      {.type = "string", .name = "Gorduras (kcal)"},
+      {.type = "string", .name = "Parcial (kcal)"},
   };
 
   for (int col_index = 0; col_index < columns.size(); col_index++) {
@@ -44,11 +45,16 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
     selected_foods_ctrl_->AppendColumn(col);
   }
 
-  model_ = new NutritionalModel({});
+  model_ = new NutritionalModel();
   selected_foods_ctrl_->AssociateModel(model_.get());
 
-  food_choices_->Bind(wxEVT_COMBOBOX, &CreatePage::OnItemSelected, this,
-                      XRCID(food_choices_->GetName()));
+  food_choices_ctrl_->Bind(wxEVT_COMBOBOX, &CreatePage::OnItemSelected, this,
+                           XRCID(food_choices_ctrl_->GetName()));
+
+  selected_foods_ctrl_->Bind(wxEVT_DATAVIEW_ITEM_CONTEXT_MENU,
+                             &CreatePage::OnContextMenuActivated, this);
+
+  selected_foods_ctrl_->Bind(wxEVT_KEY_DOWN, &CreatePage::OnDeleteKey, this);
 }
 
 bool CreatePage::SetMealsFromUser(const MealsFromUserDTO& data) {
@@ -61,14 +67,51 @@ bool CreatePage::SetMealsFromUser(const MealsFromUserDTO& data) {
 }
 
 bool CreatePage::FillFoodChoices(const std::vector<FoodDTO>& data) {
-  for (const auto& food : data) {
-    food_choices_->AppendString(wxString::FromUTF8(food.name));
+  foods_data_ = data;
+  for (const auto& food : foods_data_) {
+    food_choices_ctrl_->AppendString(wxString::FromUTF8(food.name));
   }
-  food_choices_->SetSelection(0);
+  food_choices_ctrl_->SetSelection(0);
   return true;
 }
 
 void CreatePage::OnItemSelected(wxCommandEvent& event) {
-  std::cout << "CreatePage::OnItemSelected" << std::endl;
+  wxString selected_food = food_choices_ctrl_->GetStringSelection();
+  FoodDTO food = app_->GetFoodData(selected_food.utf8_string());
+  model_->AddFoodToSelection(food);
+  model_->UpdateSelectedFoods();
   return;
+}
+
+void CreatePage::OnContextMenuActivated(wxDataViewEvent& event) {
+  printf("CreatePage::OnContextMenuActivated\n");
+  wxDataViewItem item = event.GetItem();
+  if (!item.IsOk())
+    return;
+
+  wxMenu menu;
+  menu.Append(wxID_DELETE, "Excluir Alimento");
+
+  int sel = create_page_->GetPopupMenuSelectionFromUser(menu);
+  if (sel == wxID_DELETE) {
+    unsigned int row = reinterpret_cast<uintptr_t>(item.GetID()) - 1;
+    const FoodDTO& food = model_->GetFoodByRow(row);
+    model_->DeleteFoodFromSelection(food);
+    model_->UpdateSelectedFoods();
+  }
+}
+
+void CreatePage::OnDeleteKey(wxKeyEvent& event) {
+  if (event.GetKeyCode() == WXK_DELETE) {
+    wxDataViewItem item = selected_foods_ctrl_->GetSelection();
+    if (!item.IsOk())
+      return;
+
+    unsigned int row = reinterpret_cast<uintptr_t>(item.GetID()) - 1;
+    const FoodDTO& food = model_->GetFoodByRow(row);
+    model_->DeleteFoodFromSelection(food);
+    model_->UpdateSelectedFoods();
+  } else {
+    event.Skip();
+  }
 }

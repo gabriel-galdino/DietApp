@@ -17,6 +17,8 @@ class SQLiteStatement : public DatabaseStatement {
 
   void Bind(const std::string& param_name, int value) override;
 
+  void Bind(const std::string& param_name, double value) override;
+
   bool Execute() override;
 
   std::unique_ptr<DatabaseResultSet> ExecuteQuery() override;

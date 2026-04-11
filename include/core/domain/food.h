@@ -25,17 +25,17 @@ class Food {
     display_name_ = display_name;
   }
 
-  double protein_per_100g() const { return protein_per_100g_; }
+  double proteins_per_100g() const { return proteins_per_100g_; }
 
-  void set_protein_per_100g(double val) { protein_per_100g_ = val; }
+  void set_proteins_per_100g(double val) { proteins_per_100g_ = val; }
 
-  double carb_per_100g() const { return carb_per_100g_; }
+  double carbs_per_100g() const { return carbs_per_100g_; }
 
-  void set_carb_per_100g(double val) { carb_per_100g_ = val; }
+  void set_carbs_per_100g(double val) { carbs_per_100g_ = val; }
 
-  double fat_per_100g() const { return fat_per_100g_; }
+  double fats_per_100g() const { return fats_per_100g_; }
 
-  void set_fat_per_100g(double val) { fat_per_100g_ = val; }
+  void set_fats_per_100g(double val) { fats_per_100g_ = val; }
 
   bool operator==(const Food& other) const { return id_ == other.id_; }
 
@@ -45,9 +45,9 @@ class Food {
   int id_{-1};
   std::string name_;
   std::string display_name_;
-  double protein_per_100g_;
-  double carb_per_100g_;
-  double fat_per_100g_;
+  double proteins_per_100g_;
+  double carbs_per_100g_;
+  double fats_per_100g_;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_DOMAIN_FOOD_H

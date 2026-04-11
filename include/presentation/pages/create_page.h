@@ -30,13 +30,18 @@ class CreatePage {
  private:
   void OnItemSelected(wxCommandEvent& event);
 
+  void OnContextMenuActivated(wxDataViewEvent& event);
+
+  void OnDeleteKey(wxKeyEvent& event);
+
   wxPanel* create_page_;
   INavigation* navigator_;
   IApplication* app_;
   wxChoice* user_meals_;
-  wxComboBox* food_choices_;
+  wxComboBox* food_choices_ctrl_;
   wxDataViewCtrl* selected_foods_ctrl_;
   wxObjectDataPtr<NutritionalModel> model_;
+  std::vector<FoodDTO> foods_data_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PAGES_CREATE_PAGE_H
