@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 #include "core/i_application.h"
@@ -25,6 +26,8 @@ class FakeApplication : public IApplication {
   bool DoesUserExist(const std::string& username) override;
 
   UserDTO GetUserData(const std::string& username) override;
+
+  FoodDTO GetFoodData(const std::string& food_data) override;
 
   void AddMealToUserWillReturn(bool success) {
     add_meal_to_user_return_ = success;

@@ -10,7 +10,7 @@ class FoodRepository {
  public:
   virtual ~FoodRepository() = default;
 
-  virtual const Food& GetFood(const std::string& food_name) const = 0;
+  virtual const Food GetFood(const std::string& display_name) const = 0;
 
   virtual bool AddFood(Food& food) = 0;
 

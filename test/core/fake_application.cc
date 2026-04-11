@@ -32,3 +32,13 @@ UserDTO FakeApplication::GetUserData(const std::string& username) {
   UserDTO user_data = {.username = username, .display_name = ""};
   return user_data;
 }
+
+FoodDTO FakeApplication::GetFoodData(const std::string& food_name) {
+  FoodDTO food_data = {.id = 1,
+                       .name = food_name,
+                       .display_name = "",
+                       .proteins_per_100g = 0,
+                       .carbs_per_100g = 0,
+                       .fats_per_100g = 0};
+  return food_data;
+}

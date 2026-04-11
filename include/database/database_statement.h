@@ -12,10 +12,15 @@ class DatabaseStatement {
 
   virtual void Bind(const std::string& param_name,
                     const std::string& value) = 0;
+
   virtual void Bind(const std::string& param_name, int value) = 0;
+
+  virtual void Bind(const std::string& param_name, double value) = 0;
+
   // virtual void Bind(int index, double value) = 0;
 
   virtual bool Execute() = 0;
+
   virtual std::unique_ptr<DatabaseResultSet> ExecuteQuery() = 0;
 };
 

@@ -10,12 +10,11 @@ bool SQLiteResultSet::NextRow() {
   return result_set_.NextRow();
 }
 int SQLiteResultSet::GetInt(const std::string& column_name) {
-  return result_set_.GetInt(wxString(wxString::FromUTF8(column_name)));
+  return result_set_.GetInt(wxString::FromUTF8(column_name));
 }
 std::string SQLiteResultSet::GetString(const std::string& column_name) {
-  return result_set_.GetAsString(wxString(wxString::FromUTF8(column_name)))
-      .utf8_string();
+  return result_set_.GetAsString(wxString::FromUTF8(column_name)).utf8_string();
 }
 double SQLiteResultSet::GetDouble(const std::string& column_name) {
-  return 0;
+  return result_set_.GetDouble(wxString::FromUTF8(column_name), 0);
 }

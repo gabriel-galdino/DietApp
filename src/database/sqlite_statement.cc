@@ -12,12 +12,17 @@ SQLiteStatement::SQLiteStatement(wxSQLite3Statement stmt)
 
 void SQLiteStatement::Bind(const std::string& param_name,
                            const std::string& value) {
-  int index = stmt_.GetParamIndex(wxString(param_name));
-  stmt_.Bind(index, wxString(value));
+  int index = stmt_.GetParamIndex(wxString::FromUTF8(param_name));
+  stmt_.Bind(index, wxString::FromUTF8(value));
 }
 
 void SQLiteStatement::Bind(const std::string& param_name, int value) {
-  int index = stmt_.GetParamIndex(wxString(param_name));
+  int index = stmt_.GetParamIndex(wxString::FromUTF8(param_name));
+  stmt_.Bind(index, value);
+}
+
+void SQLiteStatement::Bind(const std::string& param_name, double value) {
+  int index = stmt_.GetParamIndex(wxString::FromUTF8(param_name));
   stmt_.Bind(index, value);
 }
 

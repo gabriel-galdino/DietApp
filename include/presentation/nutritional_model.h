@@ -10,12 +10,11 @@
 
 class NutritionalModel : public wxDataViewModel {
  public:
-  NutritionalModel(const std::vector<FoodDTO> foods);
+  NutritionalModel() = default;
 
   unsigned int GetColumnCount() const override;
 
   bool HasContainerColumns(const wxDataViewItem& item) const override {
-    printf("item: %p\n", item.GetID());
     return false;
   }
 
@@ -34,12 +33,26 @@ class NutritionalModel : public wxDataViewModel {
   unsigned int GetChildren(const wxDataViewItem& parent,
                            wxDataViewItemArray& children) const override;
 
+  FoodDTO GetFoodByRow(unsigned int row);
+
+  void AddFoodToSelection(const FoodDTO& food);
+
+  void DeleteFoodFromSelection(const FoodDTO& food);
+
+  void UpdateSelectedFoods();
+
  private:
   double CalculatePartialKcal(unsigned int row) const;
 
   double CalculateTotalKcal() const;
 
-  const std::vector<FoodDTO> foods_;
+  double CalculateTotalProteinsKcal() const;
+
+  double CalculateTotalCarbsKcal() const;
+
+  double CalculateTotalFatsKcal() const;
+
+  std::vector<FoodDTO> selected_foods_;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_NUTRITIONAL_MODEL_H

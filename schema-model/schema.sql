@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS "foods" (
   `id` INTEGER PRIMARY KEY,
   `name` TEXT NOT NULL,
   `display_name` TEXT NOT NULL,
-  `protein_per_100g` REAL NOT NULL,
-  `carb_per_100g` REAL NOT NULL,
+  `proteins_per_100g` REAL NOT NULL,
+  `carbs_per_100g` REAL NOT NULL,
   `fats_per_100g` REAL NOT NULL
 );
 CREATE TABLE IF NOT EXISTS "meals" (

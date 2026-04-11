@@ -48,7 +48,16 @@ bool Application::Initialize() {
   user_repo_->LoadAllUsers();
   meal_repo_->LoadAllMeals();
   xlsx_service_->LoadFoodDataFromSheet(worksheet_name, foods, data);
-  food_repo_->FillFoodsTable(foods);
+
+  try {
+    db_adapter_->BeginTransaction();
+    food_repo_->FillFoodsTable(foods);
+    db_adapter_->CommitTransaction();
+  } catch (const wxSQLite3Exception& e) {
+    std::cerr << e.GetMessage() << std::endl;
+    db_adapter_->RollbackTransaction();
+  }
+
   presentation_->FillFoodChoices(data);
   return true;
 }
@@ -142,4 +151,15 @@ UserDTO Application::GetUserData(const std::string& username) {
   UserDTO user_data = {.username = user.username(),
                        .display_name = user.display_name()};
   return user_data;
+}
+
+FoodDTO Application::GetFoodData(const std::string& food_name) {
+  const auto food = food_repo_->GetFood(food_name);
+  FoodDTO food_data = {.id = food.id(),
+                       .name = food.name(),
+                       .display_name = food.display_name(),
+                       .proteins_per_100g = food.proteins_per_100g(),
+                       .carbs_per_100g = food.carbs_per_100g(),
+                       .fats_per_100g = food.fats_per_100g()};
+  return food_data;
 }

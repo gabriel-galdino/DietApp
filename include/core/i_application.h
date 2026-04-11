@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "core/dto/food_dto.h"
 #include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 
@@ -27,6 +28,8 @@ class IApplication {
   virtual bool DoesUserExist(const std::string& username) = 0;
 
   virtual UserDTO GetUserData(const std::string& username) = 0;
+
+  virtual FoodDTO GetFoodData(const std::string& food_name) = 0;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_I_APPLICATION_H
