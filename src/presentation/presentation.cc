@@ -1,5 +1,7 @@
 #include <vector>
 
+#include <stdexcept>
+
 #include <wx/simplebook.h>
 #include <wx/stdpaths.h>
 #include <wx/wx.h>
@@ -9,7 +11,7 @@
 
 Presentation::Presentation(IApplication* app) : app_(app) {}
 
-bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
+void Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
 
   if (xrc_resources.IsOk()) {
     main_frame_ = top_window;
@@ -19,22 +21,32 @@ bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
     xrc_resources = wxFileName(paths.GetDataDir(), "");
     xrc_resources.AppendDir("xrc");
     xrc_resources.SetFullName("resource.xrc");
-    wxXmlResource::Get()->Load(xrc_resources.GetFullPath());
+    if (wxXmlResource::Get()->Load(xrc_resources.GetFullPath()) == false) {
+      throw std::runtime_error("Falha ao carregar XRC: " +
+                               xrc_resources.GetFullPath().utf8_string());
+    }
   }
 
   if (top_window == nullptr) {
     main_frame_ = wxXmlResource::Get()->LoadFrame(nullptr, "MainFrame");
   }
+  if (main_frame_ == nullptr) {
+    throw std::runtime_error("Falha ao carregar janela principal.");
+  }
 
   book_ = XRCCTRL(*main_frame_, "m_mainBook", wxSimplebook);
   if (book_ == nullptr) {
-    return false;
+    throw std::runtime_error("Falha ao carregar controle principal.");
   }
 
   wxPanel* initial_page = XRCCTRL(*book_, "m_panelPageInit", wxPanel);
   wxPanel* register_page = XRCCTRL(*book_, "m_panelPageRegister", wxPanel);
   wxPanel* create_page = XRCCTRL(*book_, "m_panelPageCreate", wxPanel);
   wxPanel* enter_page = XRCCTRL(*book_, "m_panelPageEnter", wxPanel);
+  if (initial_page == nullptr || register_page == nullptr ||
+      create_page == nullptr || enter_page == nullptr) {
+    throw std::runtime_error("Falha ao carregar paginas da interface.");
+  }
 
   initial_page_ = std::make_shared<InitialPage>(initial_page, this);
   register_page_ = std::make_shared<RegisterPage>(register_page, this, app_);
@@ -42,7 +54,6 @@ bool Presentation::Initialize(wxFileName& xrc_resources, wxFrame* top_window) {
   enter_page_ = std::make_shared<EnterPage>(enter_page, this, app_);
 
   main_frame_->Show();
-  return true;
 }
 
 void Presentation::NavigateTo(PageId page) {
@@ -66,6 +77,6 @@ void Presentation::NavigateToRegisterPageWithNewUser() {
   book_->SetSelection(static_cast<size_t>(PageId::Register));
 };
 
-bool Presentation::FillFoodChoices(const std::vector<FoodDTO>& data) {
-  return create_page_->FillFoodChoices(data);
+void Presentation::FillFoodChoices(const std::vector<FoodDTO>& data) {
+  create_page_->FillFoodChoices(data);
 }

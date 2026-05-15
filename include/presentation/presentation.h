@@ -31,7 +31,7 @@ class Presentation : public INavigation {
 
   Presentation(IApplication* app);
 
-  bool Initialize(wxFileName& xrc_resources, wxFrame* top_window);
+  void Initialize(wxFileName& xrc_resources, wxFrame* top_window);
 
   wxFrame* GetMainFrame() { return main_frame_; }
 
@@ -41,7 +41,7 @@ class Presentation : public INavigation {
 
   std::shared_ptr<RegisterPage> GetRegisterPage() { return register_page_; }
 
-  bool FillFoodChoices(const std::vector<FoodDTO>& data);
+  void FillFoodChoices(const std::vector<FoodDTO>& data);
 
  private:
   IApplication* app_;

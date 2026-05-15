@@ -25,7 +25,7 @@ class CreatePage {
 
   bool SetMealsFromUser(const MealsFromUserDTO& data);
 
-  bool FillFoodChoices(const std::vector<FoodDTO>& data);
+  void FillFoodChoices(const std::vector<FoodDTO>& data);
 
  private:
   void OnItemSelected(wxCommandEvent& event);

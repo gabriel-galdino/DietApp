@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <resource xmlns="http://www.wxwidgets.org/wxxrc" version="2.5.3.0">
   <object class="wxFrame" name="MainFrame" subclass="wxTestableFrame">
-    <size>572,281</size>
+    <size>720,480</size>
     <style>wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL</style>
     <title></title>
     <centered>1</centered>
@@ -25,8 +25,13 @@
         <selected>0</selected>
         <object class="wxPanel" name="m_panelPageInit">
           <style>wxTAB_TRAVERSAL</style>
-          <object class="wxBoxSizer" name="bSizerInit">
-            <orient>wxVERTICAL</orient>
+          <object class="wxFlexGridSizer" name="fgSizer4">
+            <vgap>0</vgap>
+            <hgap>0</hgap>
+            <growablerows>1</growablerows>
+            <growablecols>0</growablecols>
+            <rows>2</rows>
+            <cols>1</cols>
             <object class="sizeritem">
               <flag>wxALL</flag>
               <border>5</border>
@@ -473,8 +478,60 @@
               <option>1</option>
               <object class="wxPanel" name="m_panelRight">
                 <style>wxBORDER_SUNKEN|wxTAB_TRAVERSAL</style>
-                <object class="wxBoxSizer" name="bSizerRight">
-                  <orient>wxVERTICAL</orient>
+                <object class="wxFlexGridSizer" name="fgSizer7">
+                  <vgap>0</vgap>
+                  <hgap>0</hgap>
+                  <growablerows>1</growablerows>
+                  <growablecols>0</growablecols>
+                  <rows>2</rows>
+                  <cols>1</cols>
+                  <object class="sizeritem">
+                    <flag>wxEXPAND | wxALL</flag>
+                    <border>5</border>
+                    <option>1</option>
+                    <object class="wxPanel" name="m_panelTopRight">
+                      <style>wxTAB_TRAVERSAL</style>
+                      <object class="wxBoxSizer" name="bSizer8">
+                        <orient>wxHORIZONTAL</orient>
+                        <object class="sizeritem">
+                          <flag>wxALL|wxALIGN_CENTER_VERTICAL</flag>
+                          <border>5</border>
+                          <option>0</option>
+                          <object class="wxStaticText" name="m_staticTextQuantity">
+                            <label>Quantidade (g)</label>
+                            <wrap>-1</wrap>
+                          </object>
+                        </object>
+                        <object class="sizeritem">
+                          <flag>wxALL</flag>
+                          <border>5</border>
+                          <option>0</option>
+                          <object class="wxTextCtrl" name="m_textCtrl7">
+                            <value></value>
+                            <maxlength>0</maxlength>
+                          </object>
+                        </object>
+                        <object class="spacer">
+                          <flag>wxEXPAND</flag>
+                          <border>5</border>
+                          <option>1</option>
+                          <size>0,0</size>
+                        </object>
+                        <object class="sizeritem">
+                          <flag>wxALL</flag>
+                          <border>5</border>
+                          <option>0</option>
+                          <object class="wxButton" name="m_buttonSave">
+                            <label>Salvar</label>
+                            <default>0</default>
+                            <auth_needed>0</auth_needed>
+                            <markup>0</markup>
+                            <bitmap/>
+                          </object>
+                        </object>
+                      </object>
+                    </object>
+                  </object>
                   <!-- <object class="sizeritem">
                     <flag>wxALL|wxEXPAND</flag>
                     <border>5</border>

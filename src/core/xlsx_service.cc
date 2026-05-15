@@ -37,9 +37,7 @@ std::string MergeStrings(std::vector<std::string>& parts) {
 }
 }  // namespace
 
-bool XlsxService::Initialize(wxFileName& workbook) {
-  bool success = true;
-
+void XlsxService::Initialize(wxFileName& workbook) {
   if (workbook.IsOk() == false) {
     wxStandardPaths& paths = wxStandardPaths::Get();
     workbook = wxFileName(paths.GetDataDir(), "");
@@ -47,25 +45,14 @@ bool XlsxService::Initialize(wxFileName& workbook) {
     workbook.SetFullName("Taco-4a-Edicao.xlsx");
   }
 
-  try {
-    doc_.open(workbook.GetFullPath().utf8_string());
-  } catch (const OpenXLSX::XLException& e) {
-    std::cerr << e.what() << std::endl;
-    success = false;
-  } catch (const std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    success = false;
-  }
-
-  return success;
+  doc_.open(workbook.GetFullPath().utf8_string());
 }
 
-bool XlsxService::Shutdown() {
+void XlsxService::Shutdown() {
   doc_.close();
-  return true;
 }
 
-bool XlsxService::LoadFoodDataFromSheet(const std::string sheet_name,
+void XlsxService::LoadFoodDataFromSheet(const std::string sheet_name,
                                         std::vector<Food>& foods,
                                         std::vector<FoodDTO>& data) {
   auto worksheet = doc_.workbook().worksheet(sheet_name);
@@ -118,7 +105,6 @@ bool XlsxService::LoadFoodDataFromSheet(const std::string sheet_name,
     }
   }
 
-  return true;
 }
 
 double XlsxService::getDoubleSafe(int row, int col,

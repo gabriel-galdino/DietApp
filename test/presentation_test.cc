@@ -52,7 +52,7 @@ TEST_CASE("Presentation", "[UI Flow]") {
   wxTheApp->SetTopWindow(test_frame);
   // Use fixed position to facilitate debugging.
   test_frame->Move(200, 200);
-  REQUIRE(pres.Initialize(xrc_resources, test_frame));
+  REQUIRE_NOTHROW(pres.Initialize(xrc_resources, test_frame));
 
   std::shared_ptr<InitialPage> initial_page = pres.GetInitialPage();
 
@@ -202,7 +202,7 @@ TEST_CASE("Presentation", "[UI Flow]") {
     SECTION("RegisterPageCreateButtonAppFails",
             "On create button click the application layer returns false should "
             "remain in the same page.") {
-      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(false);
+      static_cast<FakeApplication*>(app)->CreateUserWithMealWillReturn(false);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
       EventCounter clicked(reg_create_button, wxEVT_BUTTON);
 
@@ -235,7 +235,7 @@ TEST_CASE("Presentation", "[UI Flow]") {
 
       CHECK(clicked.GetCount() == 1);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
-      static_cast<FakeApplication*>(app)->AddMealToUserWillReturn(true);
+      static_cast<FakeApplication*>(app)->CreateUserWithMealWillReturn(true);
     }
 
     SECTION(
