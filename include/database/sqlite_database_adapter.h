@@ -16,25 +16,19 @@ class SQLiteDatabaseAdapter : public DatabaseAdapter {
 
   ~SQLiteDatabaseAdapter() = default;
 
-  bool Initialize(wxFileName& database) override;
+  void Initialize(wxFileName& database) override;
 
-  bool Shutdown() override;
+  void Shutdown() override;
 
   std::unique_ptr<DatabaseStatement> Prepare(const std::string& sql) override;
 
-  // bool Execute(const std::string& query) override;
-
-  // std::unique_ptr<QueryResult> Select(const std::string& query) override;
-
-  // std::string GetLastError() override;
-
   long long GetLastInsertId() override;
 
-  bool BeginTransaction() override;
+  void BeginTransaction() override;
 
-  bool CommitTransaction() override;
+  void CommitTransaction() override;
 
-  bool RollbackTransaction() override;
+  void RollbackTransaction() override;
 
  private:
   wxSQLite3Database database_;

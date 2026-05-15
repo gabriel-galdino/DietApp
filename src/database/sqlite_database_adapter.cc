@@ -1,4 +1,5 @@
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include <wx/filename.h>
@@ -8,7 +9,7 @@
 #include "database/sqlite_database_adapter.h"
 #include "database/sqlite_statement.h"
 
-bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
+void SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
   if (database.IsOk() == false) {
     wxStandardPaths& paths = wxStandardPaths::Get();
     database = wxFileName(paths.GetDataDir(), "");
@@ -17,7 +18,8 @@ bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
   database_.Open(database.GetFullPath());
 
   if (database_.IsOpen() == false) {
-    return false;
+    throw std::runtime_error("Falha ao abrir banco: " +
+                             database.GetFullPath().utf8_string());
   }
 
   if (database_.IsForeignKeySupportEnabled() == false) {
@@ -28,12 +30,10 @@ bool SQLiteDatabaseAdapter::Initialize(wxFileName& database) {
   wxFile sql_file("../schema-model/schema.sql");
   sql_file.ReadAll(&sql);
   database_.ExecuteUpdate(sql);
-  return true;
 }
 
-bool SQLiteDatabaseAdapter::Shutdown() {
+void SQLiteDatabaseAdapter::Shutdown() {
   database_.Close();
-  return true;
 }
 
 std::unique_ptr<DatabaseStatement> SQLiteDatabaseAdapter::Prepare(
@@ -41,34 +41,18 @@ std::unique_ptr<DatabaseStatement> SQLiteDatabaseAdapter::Prepare(
   return std::make_unique<SQLiteStatement>(database_.PrepareStatement(sql));
 }
 
-// bool SQLiteDatabaseAdapter::Execute(const std::string& query) {
-//   return false;
-// }
-//
-// std::unique_ptr<QueryResult> SQLiteDatabaseAdapter::Select(
-//     const std::string& query) {
-//   return nullptr;
-// }
-//
-// std::string SQLiteDatabaseAdapter::GetLastError() {
-//   return "";
-// }
-
 long long SQLiteDatabaseAdapter::GetLastInsertId() {
   return database_.GetLastRowId().GetValue();
 }
 
-bool SQLiteDatabaseAdapter::BeginTransaction() {
+void SQLiteDatabaseAdapter::BeginTransaction() {
   database_.Begin();
-  return true;
 }
 
-bool SQLiteDatabaseAdapter::CommitTransaction() {
+void SQLiteDatabaseAdapter::CommitTransaction() {
   database_.Commit();
-  return true;
 }
 
-bool SQLiteDatabaseAdapter::RollbackTransaction() {
+void SQLiteDatabaseAdapter::RollbackTransaction() {
   database_.Rollback();
-  return true;
 }

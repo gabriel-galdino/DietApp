@@ -1,11 +1,14 @@
 #include "core/application.h"
 
 #include <memory>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include <wx/filename.h>
 #include <wx/wxsqlite3.h>
 
+#include "core/core_error_messages.h"
 #include "core/domain/meal.h"
 #include "core/domain/user.h"
 #include "core/dto/food_dto.h"
@@ -30,11 +33,7 @@ Application::~Application() {
   Shutdown();
 }
 
-bool Application::InitializeDatabase(const std::string& databasePath) {
-  return false;
-}
-
-bool Application::Initialize() {
+void Application::Initialize() {
   wxFileName workbook;
   wxFileName database;
   wxFileName xrc_resources;
@@ -42,28 +41,62 @@ bool Application::Initialize() {
   std::vector<FoodDTO> data;
   const std::string worksheet_name = "CMVCol taco3";
 
-  db_adapter_->Initialize(database);
-  xlsx_service_->Initialize(workbook);
-  presentation_->Initialize(xrc_resources, nullptr);
-  user_repo_->LoadAllUsers();
-  meal_repo_->LoadAllMeals();
-  xlsx_service_->LoadFoodDataFromSheet(worksheet_name, foods, data);
-
   try {
-    db_adapter_->BeginTransaction();
-    food_repo_->FillFoodsTable(foods);
-    db_adapter_->CommitTransaction();
+    db_adapter_->Initialize(database);
   } catch (const wxSQLite3Exception& e) {
-    std::cerr << e.GetMessage() << std::endl;
-    db_adapter_->RollbackTransaction();
+    throw std::runtime_error(kDatabaseStartupErrMsg +
+                             e.GetMessage().utf8_string());
   }
 
-  presentation_->FillFoodChoices(data);
-  return true;
+  try {
+    xlsx_service_->Initialize(workbook);
+    xlsx_service_->LoadFoodDataFromSheet(worksheet_name, foods, data);
+  } catch (const OpenXLSX::XLException& e) {
+    throw std::runtime_error(kSpreadSheetStartupErrMsg + std::string(e.what()));
+  } catch (const std::exception& e) {
+    throw std::runtime_error(kSpreadSheetStartupErrMsg + std::string(e.what()));
+  }
+
+  try {
+    user_repo_->LoadAllUsers();
+    meal_repo_->LoadAllMeals();
+  } catch (const wxSQLite3Exception& e) {
+    throw std::runtime_error(kDatabaseStartupErrMsg +
+                             e.GetMessage().utf8_string());
+  }
+
+  bool transaction_started = false;
+  try {
+    db_adapter_->BeginTransaction();
+    transaction_started = true;
+    food_repo_->FillFoodsTable(foods);
+    db_adapter_->CommitTransaction();
+    transaction_started = false;
+  } catch (const wxSQLite3Exception& e) {
+    if (transaction_started) {
+      try {
+        db_adapter_->RollbackTransaction();
+      } catch (const wxSQLite3Exception& rollback_error) {
+        throw std::runtime_error(kFillFoodsTableErrMsg +
+                                 e.GetMessage().utf8_string() +
+                                 "; falha no rollback: " +
+                                 rollback_error.GetMessage().utf8_string());
+      }
+    }
+    throw std::runtime_error(kFillFoodsTableErrMsg +
+                             e.GetMessage().utf8_string());
+  }
+
+  try {
+    presentation_->Initialize(xrc_resources, nullptr);
+    presentation_->FillFoodChoices(data);
+  } catch (const std::exception& e) {
+    throw std::runtime_error(kPresentationStartupErrMsg + std::string(e.what()));
+  }
 }
 
-bool Application::Shutdown() {
-  return db_adapter_->Shutdown();
+void Application::Shutdown() {
+  db_adapter_->Shutdown();
 }
 
 DatabaseManager* Application::GetDatabaseManager() const {

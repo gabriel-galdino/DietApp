@@ -25,13 +25,9 @@ class Application : public IApplication {
 
   ~Application();
 
-  bool InitializeDatabase(const std::string& databasePath);
+  void Initialize() override;
 
-  bool InitializePresentation(const std::string& databasePath);
-
-  bool Initialize() override;
-
-  bool Shutdown() override;
+  void Shutdown() override;
 
   DatabaseManager* GetDatabaseManager() const;
 

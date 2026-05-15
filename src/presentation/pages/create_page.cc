@@ -66,13 +66,12 @@ bool CreatePage::SetMealsFromUser(const MealsFromUserDTO& data) {
   return true;
 }
 
-bool CreatePage::FillFoodChoices(const std::vector<FoodDTO>& data) {
+void CreatePage::FillFoodChoices(const std::vector<FoodDTO>& data) {
   foods_data_ = data;
   for (const auto& food : foods_data_) {
     food_choices_ctrl_->AppendString(wxString::FromUTF8(food.name));
   }
   food_choices_ctrl_->SetSelection(0);
-  return true;
 }
 
 void CreatePage::OnItemSelected(wxCommandEvent& event) {
@@ -80,14 +79,13 @@ void CreatePage::OnItemSelected(wxCommandEvent& event) {
   FoodDTO food = app_->GetFoodData(selected_food.utf8_string());
   model_->AddFoodToSelection(food);
   model_->UpdateSelectedFoods();
-  return;
 }
 
 void CreatePage::OnContextMenuActivated(wxDataViewEvent& event) {
-  printf("CreatePage::OnContextMenuActivated\n");
   wxDataViewItem item = event.GetItem();
-  if (!item.IsOk())
+  if (!item.IsOk()) {
     return;
+  }
 
   wxMenu menu;
   menu.Append(wxID_DELETE, "Excluir Alimento");
@@ -104,8 +102,9 @@ void CreatePage::OnContextMenuActivated(wxDataViewEvent& event) {
 void CreatePage::OnDeleteKey(wxKeyEvent& event) {
   if (event.GetKeyCode() == WXK_DELETE) {
     wxDataViewItem item = selected_foods_ctrl_->GetSelection();
-    if (!item.IsOk())
+    if (!item.IsOk()) {
       return;
+    }
 
     unsigned int row = reinterpret_cast<uintptr_t>(item.GetID()) - 1;
     const FoodDTO& food = model_->GetFoodByRow(row);

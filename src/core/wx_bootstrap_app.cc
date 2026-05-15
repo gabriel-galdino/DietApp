@@ -5,13 +5,25 @@
 #include "core/application.h"
 
 bool WxBootstrapApp::OnInit() {
-  app_ = new Application();
-  app_->Initialize();
+  try {
+    app_ = new Application();
+    app_->Initialize();
+  } catch (const std::exception& e) {
+    wxLogError("Falha ao iniciar aplicação: %s.", e.what());
+    wxMessageBox(
+        wxString::Format("O DietApp não pôde ser iniciado:\n%s", e.what()),
+        "Erro Fatal", wxOK | wxICON_ERROR);
+    delete app_;
+    app_ = nullptr;
+    return false;
+  }
   return true;
 }
 
 int WxBootstrapApp::OnExit() {
-  return app_->Shutdown();
+  delete app_;
+  app_ = nullptr;
+  return 0;
 }
 
 wxIMPLEMENT_APP(WxBootstrapApp);

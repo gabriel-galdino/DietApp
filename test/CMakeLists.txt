@@ -16,6 +16,7 @@ target_compile_definitions(presentation_test PRIVATE
 target_compile_options(presentation_test PRIVATE ${WX_CFLAGS_OTHER})
 target_include_directories (presentation_test PRIVATE
   ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/test
   ${WXWIDGETS_INCLUDE_DIRS}
   ${CATCH2_INCLUDE_DIRS})
 target_link_libraries(presentation_test PRIVATE

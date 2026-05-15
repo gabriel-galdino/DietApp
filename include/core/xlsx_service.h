@@ -7,11 +7,11 @@
 
 class XlsxService {
  public:
-  bool Initialize(wxFileName& workbook);
+  void Initialize(wxFileName& workbook);
 
-  bool Shutdown();
+  void Shutdown();
 
-  bool LoadFoodDataFromSheet(const std::string worksheet,
+  void LoadFoodDataFromSheet(const std::string worksheet,
                              std::vector<Food>& foods,
                              std::vector<FoodDTO>& data);
 
