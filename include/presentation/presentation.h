@@ -41,6 +41,8 @@ class Presentation : public INavigation {
 
   std::shared_ptr<RegisterPage> GetRegisterPage() { return register_page_; }
 
+  std::shared_ptr<CreatePage> GetCreatePage() { return create_page_; }
+
   void FillFoodChoices(const std::vector<FoodDTO>& data);
 
  private:

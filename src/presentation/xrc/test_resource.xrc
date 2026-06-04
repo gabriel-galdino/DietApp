@@ -506,7 +506,7 @@
                           <flag>wxALL</flag>
                           <border>5</border>
                           <option>0</option>
-                          <object class="wxTextCtrl" name="m_textCtrl7">
+                          <object class="wxTextCtrl" name="m_textCtrlQty">
                             <value></value>
                             <maxlength>0</maxlength>
                           </object>

@@ -48,6 +48,10 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
   model_ = new NutritionalModel();
   selected_foods_ctrl_->AssociateModel(model_.get());
 
+  quantity_ctrl_ = XRCCTRL(*create_page, "m_textCtrlQty", wxTextCtrl);
+  wxASSERT(quantity_ctrl_);
+  quantity_ctrl_->Enable(false);
+
   food_choices_ctrl_->Bind(wxEVT_COMBOBOX, &CreatePage::OnItemSelected, this,
                            XRCID(food_choices_ctrl_->GetName()));
 
@@ -55,6 +59,12 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
                              &CreatePage::OnContextMenuActivated, this);
 
   selected_foods_ctrl_->Bind(wxEVT_KEY_DOWN, &CreatePage::OnDeleteKey, this);
+
+  selected_foods_ctrl_->Bind(wxEVT_DATAVIEW_SELECTION_CHANGED,
+                             &CreatePage::OnSelectionChanged, this);
+
+  quantity_ctrl_->Bind(wxEVT_TEXT, &CreatePage::OnQuantityChanged, this,
+                       XRCID(quantity_ctrl_->GetName()));
 }
 
 bool CreatePage::SetMealsFromUser(const MealsFromUserDTO& data) {
@@ -79,6 +89,15 @@ void CreatePage::OnItemSelected(wxCommandEvent& event) {
   FoodDTO food = app_->GetFoodData(selected_food.utf8_string());
   model_->AddFoodToSelection(food);
   model_->UpdateSelectedFoods();
+
+  // Select the newly added food row in the table
+  unsigned int new_row = model_->GetFoodsCount() - 1;
+  wxDataViewItem item(reinterpret_cast<void*>(new_row + 1));
+  selected_foods_ctrl_->Select(item);
+
+  // Manually update quantity control to reflect selection
+  quantity_ctrl_->Enable(true);
+  quantity_ctrl_->ChangeValue(wxString::Format("%.2lf", food.quantity));
 }
 
 void CreatePage::OnContextMenuActivated(wxDataViewEvent& event) {
@@ -113,4 +132,49 @@ void CreatePage::OnDeleteKey(wxKeyEvent& event) {
   } else {
     event.Skip();
   }
+}
+
+void CreatePage::OnSelectionChanged(wxDataViewEvent& event) {
+  if (is_updating_quantity_) return;
+
+  wxDataViewItem item = event.GetItem();
+  if (item.IsOk() == false) {
+    quantity_ctrl_->ChangeValue("");
+    quantity_ctrl_->Enable(false);
+    return;
+  }
+
+  unsigned int row = reinterpret_cast<uintptr_t>(item.GetID()) - 1;
+  if (row < model_->GetFoodsCount()) {
+    double qty = model_->GetFoodQuantity(row);
+    quantity_ctrl_->Enable(true);
+    quantity_ctrl_->ChangeValue(wxString::Format("%.2lf", qty));
+  } else {
+    quantity_ctrl_->ChangeValue("");
+    quantity_ctrl_->Enable(false);
+  }
+}
+
+void CreatePage::OnQuantityChanged(wxCommandEvent& event) {
+  if (is_updating_quantity_) return;
+
+  wxDataViewItem item = selected_foods_ctrl_->GetSelection();
+  if (item.IsOk() == false) return;
+
+  unsigned int row = reinterpret_cast<uintptr_t>(item.GetID()) - 1;
+  if (row >= model_->GetFoodsCount()) return;
+
+  double qty = 0.0;
+  wxString val = quantity_ctrl_->GetValue();
+  if (val.IsEmpty()) {
+    qty = 0.0;
+  } else if (val.ToDouble(&qty) == false || qty < 0.0) {
+    return;
+  }
+
+  is_updating_quantity_ = true;
+  model_->UpdateFoodQuantity(row, qty);
+  model_->UpdateSelectedFoods();
+  selected_foods_ctrl_->Select(item);
+  is_updating_quantity_ = false;
 }

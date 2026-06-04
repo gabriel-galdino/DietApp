@@ -23,6 +23,14 @@ class CreatePage {
 
   wxChoice* user_meals() { return user_meals_; }
 
+  wxComboBox* food_choices_ctrl() { return food_choices_ctrl_; }
+
+  wxDataViewCtrl* selected_foods_ctrl() { return selected_foods_ctrl_; }
+
+  wxTextCtrl* quantity_ctrl() { return quantity_ctrl_; }
+
+  NutritionalModel* model() { return model_.get(); }
+
   bool SetMealsFromUser(const MealsFromUserDTO& data);
 
   void FillFoodChoices(const std::vector<FoodDTO>& data);
@@ -34,12 +42,18 @@ class CreatePage {
 
   void OnDeleteKey(wxKeyEvent& event);
 
+  void OnQuantityChanged(wxCommandEvent& event);
+
+  void OnSelectionChanged(wxDataViewEvent& event);
+
   wxPanel* create_page_;
   INavigation* navigator_;
   IApplication* app_;
   wxChoice* user_meals_;
   wxComboBox* food_choices_ctrl_;
   wxDataViewCtrl* selected_foods_ctrl_;
+  wxTextCtrl* quantity_ctrl_;
+  bool is_updating_quantity_ = false;
   wxObjectDataPtr<NutritionalModel> model_;
   std::vector<FoodDTO> foods_data_;
 };

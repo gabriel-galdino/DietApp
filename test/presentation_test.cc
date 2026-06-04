@@ -276,6 +276,65 @@ TEST_CASE("Presentation", "[UI Flow]") {
 
       CHECK(clicked.GetCount() == 1);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Create);
+
+      std::shared_ptr<CreatePage> create_page = pres.GetCreatePage();
+      REQUIRE(create_page != nullptr);
+
+      wxTextCtrl* quantity_ctrl = create_page->quantity_ctrl();
+      wxComboBox* food_choices_ctrl = create_page->food_choices_ctrl();
+      wxDataViewCtrl* selected_foods_ctrl = create_page->selected_foods_ctrl();
+      NutritionalModel* model = create_page->model();
+
+      // Initially quantity_ctrl should be disabled and empty
+      CHECK_FALSE(quantity_ctrl->IsEnabled());
+      CHECK(quantity_ctrl->GetValue() == "");
+
+      // Let's populate food choices
+      FoodDTO mock_food{.id = 12,
+                        .name = "Abacate",
+                        .display_name = "Abacate, com casca",
+                        .proteins_per_100g = 1.2,
+                        .carbs_per_100g = 6.0,
+                        .fats_per_100g = 8.4};
+      static_cast<FakeApplication*>(app)->GetFoodDataWillReturn(mock_food);
+
+      std::vector<FoodDTO> mock_foods = {mock_food};
+      pres.FillFoodChoices(mock_foods);
+
+      // Select food from the combobox
+      food_choices_ctrl->SetSelection(0);
+      wxCommandEvent combo_evt(wxEVT_COMBOBOX, food_choices_ctrl->GetId());
+      combo_evt.SetEventObject(food_choices_ctrl);
+      food_choices_ctrl->ProcessWindowEvent(combo_evt);
+
+      // Now the food should be added and selected
+      REQUIRE(model->GetFoodsCount() == 1);
+      CHECK(model->GetFoodByRow(0).name == "Abacate");
+      CHECK(quantity_ctrl->IsEnabled());
+      CHECK(quantity_ctrl->GetValue() == "100.00");
+
+      // Verify that values in model are correct (100g initially)
+      wxVariant val;
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 1); // proteins
+      CHECK(val.GetString() == "1.20");
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 2); // carbs
+      CHECK(val.GetString() == "6.00");
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 3); // fats
+      CHECK(val.GetString() == "8.40");
+
+      // Modify the quantity using the quantity_ctrl
+      quantity_ctrl->SetValue("150.00");
+
+      // Verify updated quantity
+      CHECK(model->GetFoodQuantity(0) == 150.00);
+
+      // Verify scaled values (150g -> 1.5x)
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 1); // proteins
+      CHECK(val.GetString() == "1.80");
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 2); // carbs
+      CHECK(val.GetString() == "9.00");
+      model->GetValue(val, wxDataViewItem(reinterpret_cast<void*>(1)), 3); // fats
+      CHECK(val.GetString() == "12.60");
     }
   }
 }
