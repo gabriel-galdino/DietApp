@@ -41,6 +41,12 @@ class NutritionalModel : public wxDataViewModel {
 
   void UpdateSelectedFoods();
 
+  unsigned int GetFoodsCount() const;
+
+  double GetFoodQuantity(unsigned int row) const;
+
+  void UpdateFoodQuantity(unsigned int row, double quantity);
+
  private:
   double CalculatePartialKcal(unsigned int row) const;
 
