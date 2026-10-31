@@ -32,10 +32,10 @@ CreatePage::CreatePage(wxPanel* create_page, INavigation* navigator,
 
   const std::vector<Column> columns{
       {.type = "string", .name = ""},
-      {.type = "string", .name = "Proteínas (kcal)"},
-      {.type = "string", .name = "Carboidratos (kcal)"},
-      {.type = "string", .name = "Gorduras (kcal)"},
-      {.type = "string", .name = "Parcial (kcal)"},
+      {.type = "string", .name = "Proteínas (g)"},
+      {.type = "string", .name = "Carboidratos (g)"},
+      {.type = "string", .name = "Gorduras (g)"},
+      {.type = "string", .name = "kcal"},
   };
 
   for (int col_index = 0; col_index < columns.size(); col_index++) {

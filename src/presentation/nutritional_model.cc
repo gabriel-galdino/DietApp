@@ -57,7 +57,7 @@ void NutritionalModel::GetValue(wxVariant& variant, const wxDataViewItem& item,
         variant = wxString::Format("%.2lf", food.fats_per_100g * factor);
         break;
       case 4:
-        variant = wxString::Format("%.2lf", CalculatePartialKcal(row));
+        variant = wxString::Format("%.2lf", CalculateAccumulatedKcal(row));
         break;
     }
   } else {
@@ -69,17 +69,17 @@ void NutritionalModel::GetValue(wxVariant& variant, const wxDataViewItem& item,
       case 1:
         variant = selected_foods_.empty()
                       ? wxString::Format("%.2lf", 0.00)
-                      : wxString::Format("%.2lf", CalculateTotalProteinsKcal());
+                      : wxString::Format("%.2lf", CalculateTotalProteins());
         break;
       case 2:
         variant = selected_foods_.empty()
                       ? wxString::Format("%.2lf", 0.00)
-                      : wxString::Format("%.2lf", CalculateTotalCarbsKcal());
+                      : wxString::Format("%.2lf", CalculateTotalCarbs());
         break;
       case 3:
         variant = selected_foods_.empty()
                       ? wxString::Format("%.2lf", 0.00)
-                      : wxString::Format("%.2lf", CalculateTotalFatsKcal());
+                      : wxString::Format("%.2lf", CalculateTotalFats());
         break;
       case 4:
         variant = wxString::Format("%.2lf", CalculateTotalKcal());
@@ -135,52 +135,59 @@ void NutritionalModel::ClearFoods() {
   selected_foods_.clear();
 }
 
-double NutritionalModel::CalculatePartialKcal(unsigned int row) const {
-  double partial_kcal = 0;
+double NutritionalModel::CalculateAccumulatedKcal(unsigned int row) const {
+  double accumulated_kcal = 0;
+  const double protein_kcal = 4;
+  const double carb_kcal = 4;
+  const double fat_kcal = 9;
   for (int i = 0; i <= row; i++) {
     const auto& food = selected_foods_[i];
     double factor = food.quantity / 100.0;
-    partial_kcal +=
-        (food.proteins_per_100g + food.carbs_per_100g + food.fats_per_100g) * factor;
+    double partial_proteins_kcal = food.proteins_per_100g * protein_kcal;
+    double partial_carbs_kcal = food.carbs_per_100g * carb_kcal;
+    double partial_fats_kcal = food.fats_per_100g * fat_kcal;
+    accumulated_kcal += (partial_proteins_kcal +  //
+                         partial_carbs_kcal +     //
+                         partial_fats_kcal) *
+                        factor;
   }
-  return partial_kcal;
+  return accumulated_kcal;
 }
 
 double NutritionalModel::CalculateTotalKcal() const {
+
   double total_kcal = 0;
-  for (const auto& food : selected_foods_) {
-    double factor = food.quantity / 100.0;
-    total_kcal +=
-        (food.proteins_per_100g + food.carbs_per_100g + food.fats_per_100g) * factor;
+  if (selected_foods_.empty() == false) {
+    total_kcal = CalculateAccumulatedKcal(selected_foods_.size() - 1);
   }
   return total_kcal;
 }
 
-double NutritionalModel::CalculateTotalProteinsKcal() const {
-  double total_proteins_kcal = 0.0;
+double NutritionalModel::CalculateTotalProteins() const {
+  double total_proteins_g = 0.0;
   for (const auto& food : selected_foods_) {
     double factor = food.quantity / 100.0;
-    total_proteins_kcal += food.proteins_per_100g * factor;
+    total_proteins_g += food.proteins_per_100g * factor;
   }
-  return total_proteins_kcal;
+  return total_proteins_g;
 }
 
-double NutritionalModel::CalculateTotalCarbsKcal() const {
-  double total_carbs_kcal = 0.0;
+double NutritionalModel::CalculateTotalCarbs() const {
+  double total_carbs_g = 0.0;
   for (const auto& food : selected_foods_) {
     double factor = food.quantity / 100.0;
-    total_carbs_kcal += food.carbs_per_100g * factor;
+    total_carbs_g += food.carbs_per_100g * factor;
   }
-  return total_carbs_kcal;
+  return total_carbs_g;
 }
 
-double NutritionalModel::CalculateTotalFatsKcal() const {
-  double total_fats_kcal = 0.0;
+double NutritionalModel::CalculateTotalFats() const {
+  double total_fats_g = 0.0;
   for (const auto& food : selected_foods_) {
     double factor = food.quantity / 100.0;
-    total_fats_kcal += food.fats_per_100g * factor;
+    total_fats_g += food.fats_per_100g * factor;
   }
-  return total_fats_kcal;
+  return total_fats_g;
 }
 
 unsigned int NutritionalModel::GetFoodsCount() const {
