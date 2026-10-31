@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include "core/dto/meal_dto.h"
+#include "core/dto/meal_dto.h"
 
 void FakeApplication::Initialize() {}
 
@@ -15,9 +17,10 @@ bool FakeApplication::AddMealToUser(const AddMealToUserDTO& data) {
   return add_meal_to_user_return_;
 }
 
-std::vector<MealDTO> FakeApplication::LoadMealsFromUser(
-    const std::string& name) {
-  return meals_;
+bool FakeApplication::LoadMealsFromUser(
+    const std::string& name, MealsFromUserDTO& meals_from_user_data) {
+  meals_from_user_data = fake_meals_from_user_data_;
+  return load_meals_from_user_return_;
 }
 
 bool FakeApplication::DoesUserExist(const std::string& username) {

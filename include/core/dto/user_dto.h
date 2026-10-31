@@ -15,6 +15,7 @@ struct AddMealToUserDTO {
 };
 
 struct UserDTO {
+  int id = -1;
   std::string username;
   std::string display_name;
 };

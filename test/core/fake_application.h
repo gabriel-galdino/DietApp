@@ -21,13 +21,16 @@ class FakeApplication : public IApplication {
 
   bool AddMealToUser(const AddMealToUserDTO& data) override;
 
-  std::vector<MealDTO> LoadMealsFromUser(const std::string& name) override;
+  bool LoadMealsFromUser(const std::string& name,
+                         MealsFromUserDTO& meals_from_user_data) override;
 
   bool DoesUserExist(const std::string& username) override;
 
   UserDTO GetUserData(const std::string& username) override;
 
   FoodDTO GetFoodData(const std::string& food_data) override;
+
+  bool SaveMealFoods(const MealDTO& meal) override { return true; }
 
   void AddMealToUserWillReturn(bool success) {
     add_meal_to_user_return_ = success;
@@ -37,9 +40,12 @@ class FakeApplication : public IApplication {
     create_user_with_meal_return_ = success;
   }
 
-  void LoadMealsFromUserWillReturn(const MealDTO& meal_data) {
-    meals_.clear();
-    meals_.push_back(meal_data);
+  void LoadMealsFromUserWillReturn(bool success) {
+    load_meals_from_user_return_ = success;
+  }
+
+  void LoadMealsFromUserWillBeSetWith(MealsFromUserDTO &meals_from_user_data) {
+    fake_meals_from_user_data_ = meals_from_user_data;
   }
 
   void DoesUserExistsWillReturn(bool success) {
@@ -58,9 +64,11 @@ class FakeApplication : public IApplication {
   bool create_user_with_meal_return_ = true;
   bool add_meal_to_user_return_ = true;
   bool does_user_exists_return_ = false;
+  bool load_meals_from_user_return_ = true;
   std::vector<MealDTO> meals_;
   UserDTO user_data_;
   FoodDTO food_data_{};
+  MealsFromUserDTO fake_meals_from_user_data_;
 };
 
 #endif  // DIETAPP_INCLUDE_TEST_APPLICATION_H

@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "core/domain/meal.h"
+#include "core/dto/food_dto.h"
+#include "core/dto/meal_dto.h"
 
 class MealRepository {
  public:
@@ -22,6 +24,10 @@ class MealRepository {
   virtual bool UpdateMeal(const Meal& meal, int user_id) = 0;
 
   virtual bool LoadAllMeals() = 0;
+
+  virtual std::vector<FoodDTO> GetFoodsForMeal(int meal_id) = 0;
+
+  virtual bool SaveMealFoods(const MealDTO& meal) = 0;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_PORTS_REPOSITORY_MEAL_REPOSITORY_H

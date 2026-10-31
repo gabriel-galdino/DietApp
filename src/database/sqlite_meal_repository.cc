@@ -60,3 +60,45 @@ bool SQLiteMealRepository::LoadAllMeals() {
   }
   return true;
 }
+
+std::vector<FoodDTO> SQLiteMealRepository::GetFoodsForMeal(int meal_id) {
+  std::vector<FoodDTO> foods;
+  auto stmt = db_adapter_->Prepare(
+      "SELECT f.id, f.name, f.display_name, f.proteins_per_100g, "
+      "f.carbs_per_100g, f.fats_per_100g, mf.quantity_grams "
+      "FROM foods f "
+      "JOIN meal_foods mf ON f.id = mf.food_id "
+      "WHERE mf.meal_id = :meal_id");
+  stmt->Bind(":meal_id", meal_id);
+  auto result_set = stmt->ExecuteQuery();
+  while (result_set->NextRow()) {
+    FoodDTO food;
+    food.id = result_set->GetInt("id");
+    food.name = result_set->GetString("name");
+    food.display_name = result_set->GetString("display_name");
+    food.proteins_per_100g = result_set->GetDouble("proteins_per_100g");
+    food.carbs_per_100g = result_set->GetDouble("carbs_per_100g");
+    food.fats_per_100g = result_set->GetDouble("fats_per_100g");
+    food.quantity = result_set->GetDouble("quantity_grams");
+    foods.push_back(food);
+  }
+  return foods;
+}
+
+bool SQLiteMealRepository::SaveMealFoods(const MealDTO& meal) {
+  auto del_stmt = db_adapter_->Prepare(kDeleteMealFoodsEntry);
+  del_stmt->Bind(":meal_id", meal.id);
+  del_stmt->Execute();
+
+  for (const auto& food : meal.foods) {
+    auto ins_stmt = db_adapter_->Prepare(kInsertMealFoodsEntry);
+    ins_stmt->Bind(":meal_id", meal.id);
+    ins_stmt->Bind(":food_id", food.id);
+    ins_stmt->Bind(":quantity_grams", food.quantity);
+    ins_stmt->Bind(":calories", 0);
+    if (ins_stmt->Execute() == false) {
+      return false;
+    }
+  }
+  return true;
+}

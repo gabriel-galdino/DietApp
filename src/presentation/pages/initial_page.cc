@@ -21,9 +21,9 @@ InitialPage::InitialPage(wxPanel* initial_page, INavigation* navigator)
 }
 
 void InitialPage::OnButtonRegister(wxCommandEvent& event) {
-  navigator_->NavigateToRegisterPageWithNewUser();
+  navigator_->NavigateToRegisterPage();
 }
 
 void InitialPage::OnButtonEnter(wxCommandEvent& event) {
-  navigator_->NavigateTo(PageId::Enter);
+  navigator_->NavigateToEnterPage();
 }

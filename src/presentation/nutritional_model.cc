@@ -131,6 +131,10 @@ void NutritionalModel::UpdateSelectedFoods() {
   Cleared();
 }
 
+void NutritionalModel::ClearFoods() {
+  selected_foods_.clear();
+}
+
 double NutritionalModel::CalculatePartialKcal(unsigned int row) const {
   double partial_kcal = 0;
   for (int i = 0; i <= row; i++) {

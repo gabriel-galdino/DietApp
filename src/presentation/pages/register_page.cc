@@ -7,6 +7,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 
+#include "core/dto/meal_dto.h"
 #include "core/dto/user_dto.h"
 #include "core/i_application.h"
 #include "presentation/error_messages.h"
@@ -59,15 +60,32 @@ void RegisterPage::OnButtonCreate(wxCommandEvent& event) {
     return;
   }
 
-  if (current_action_() == false) {
+  if (mode_ == Mode::kExistingUSer) {
+    AddMealToUserDTO add_meal_to_user_data = {
+        .username = username_.utf8_string(), .meal_name = meal_.utf8_string()};
+    if (app_->AddMealToUser(add_meal_to_user_data) == false) {
+      ShowError(kMealAddFailedErrMsg);
+      return;
+    }
+  } else { /* Mode::kCreateUser */
+    CreateUserWithMealDTO create_user_with_meal_data = {
+        .username = username_.utf8_string(),
+        .display_name = display_name_.utf8_string(),
+        .meal_name = meal_.utf8_string()};
+    if (app_->CreateUserWithMeal(create_user_with_meal_data) == false) {
+      ShowError(kCreateUserFailedErrMsg);
+      return;
+    }
+  }
+
+  MealsFromUserDTO meals_from_user_data;
+  if (app_->LoadMealsFromUser(username_.utf8_string(),
+                              meals_from_user_data) == false) {
+    ShowError(kLoadMealsFromUserErrMsg);
     return;
   }
 
-  auto meals = app_->LoadMealsFromUser(username_.utf8_string());
-  auto it = FindCurrentMealPos(meals);
-  int selected_index = std::distance(meals.begin(), it);
-  MealsFromUserDTO data{.meals = meals, .selected_meal = selected_index};
-  navigator_->NavigateToCreatePageWithMeals(std::move(data));
+  navigator_->NavigateToCreatePage(meals_from_user_data);
 }
 
 void RegisterPage::ShowError(const char* err_msg) {
@@ -94,44 +112,6 @@ void RegisterPage::ResetTexCtrls() {
   username_ctrl_->SetEditable(true);
   display_name_ctrl_->SetEditable(true);
   meal_ctrl_->SetEditable(true);
-}
-
-void RegisterPage::ConfigureForNewUser() {
-  create_button_->SetLabel(wxString::FromUTF8(kCreateUserLabel));
-  current_action_ = [this]() {
-    return OnButtonCreateWithNewUser();
-  };
-}
-
-void RegisterPage::ConfigureForExistingUser() {
-  create_button_->SetLabel(wxString::FromUTF8(kAddMealLabel));
-  current_action_ = [this]() {
-    return OnButtonCreateWithExistingUser();
-  };
-}
-
-bool RegisterPage::OnButtonCreateWithNewUser() {
-  CreateUserWithMealDTO data = {.username = username_.utf8_string(),
-                                .display_name = display_name_.utf8_string(),
-                                .meal_name = meal_.utf8_string()};
-  if (app_->CreateUserWithMeal(std::move(data)) == false) {
-    ShowError(kCreateUserFailedErrMsg);
-    return false;
-  }
-
-  return true;
-}
-
-bool RegisterPage::OnButtonCreateWithExistingUser() {
-  ResetTexCtrls();
-  AddMealToUserDTO data = {.username = username_.utf8_string(),
-                           .meal_name = meal_.utf8_string()};
-  if (app_->AddMealToUser(std::move(data)) == false) {
-    ShowError(kMealAddFailedErrMsg);
-    return false;
-  }
-
-  return true;
 }
 
 bool RegisterPage::ValidateTextCtrl(wxTextCtrl* ctrl, wxString& data,

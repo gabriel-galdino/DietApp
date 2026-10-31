@@ -42,13 +42,16 @@ class Application : public IApplication {
 
   bool AddMealToUser(const AddMealToUserDTO& data) override;
 
-  std::vector<MealDTO> LoadMealsFromUser(const std::string& username) override;
+  bool LoadMealsFromUser(const std::string& username,
+                         MealsFromUserDTO& meals_from_user_data) override;
 
   bool DoesUserExist(const std::string& username) override;
 
   UserDTO GetUserData(const std::string& username) override;
 
   FoodDTO GetFoodData(const std::string& food_name) override;
+
+  bool SaveMealFoods(const MealDTO& meal) override;
 
  private:
   std::unique_ptr<DatabaseManager> db_manager_;

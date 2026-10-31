@@ -11,4 +11,7 @@ constexpr char kCreateUserFailedErrMsg[] =
 constexpr char kMealAddFailedErrMsg[] =
     "Falha em adicionar refeição ao usuário.";
 
+constexpr char kLoadMealsFromUserErrMsg[] =
+    "Falha ao carregar refeições do usuário.";
+
 #endif  // DIETAPP_INCLUDE_PRESENTATION_ERROR_MESSAGES_H

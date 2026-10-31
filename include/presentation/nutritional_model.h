@@ -41,11 +41,19 @@ class NutritionalModel : public wxDataViewModel {
 
   void UpdateSelectedFoods();
 
+  void ClearFoods();
+
   unsigned int GetFoodsCount() const;
 
   double GetFoodQuantity(unsigned int row) const;
 
   void UpdateFoodQuantity(unsigned int row, double quantity);
+
+  std::vector<FoodDTO> selected_foods() const { return selected_foods_; }
+
+  void set_selected_foods(std::vector<FoodDTO> selected_foods) {
+    selected_foods_ = selected_foods;
+  }
 
  private:
   double CalculatePartialKcal(unsigned int row) const;
