@@ -22,14 +22,16 @@ class IApplication {
 
   virtual bool AddMealToUser(const AddMealToUserDTO& data) = 0;
 
-  virtual std::vector<MealDTO> LoadMealsFromUser(
-      const std::string& username) = 0;
+  virtual bool LoadMealsFromUser(const std::string& username,
+                         MealsFromUserDTO& meals_from_user_data) = 0;
 
   virtual bool DoesUserExist(const std::string& username) = 0;
 
   virtual UserDTO GetUserData(const std::string& username) = 0;
 
   virtual FoodDTO GetFoodData(const std::string& food_name) = 0;
+
+  virtual bool SaveMealFoods(const MealDTO& meal) = 0;
 };
 
 #endif  // DIETAPP_INCLUDE_CORE_I_APPLICATION_H

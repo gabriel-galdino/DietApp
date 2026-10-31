@@ -22,9 +22,11 @@ class Presentation : public INavigation {
  public:
   void NavigateTo(PageId page) override;
 
-  void NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) override;
+  void NavigateToCreatePage(const MealsFromUserDTO& data) override;
 
-  void NavigateToRegisterPageWithNewUser() override;
+  void NavigateToRegisterPage() override;
+
+  void NavigateToEnterPage() override;
 
   void NavigateToRegisterPageWithExistingUser(
       const UserDTO& user_data) override;
@@ -43,7 +45,7 @@ class Presentation : public INavigation {
 
   std::shared_ptr<CreatePage> GetCreatePage() { return create_page_; }
 
-  void FillFoodChoices(const std::vector<FoodDTO>& data);
+  void FillFoodsComboBox(const std::vector<FoodDTO>& data);
 
  private:
   IApplication* app_;

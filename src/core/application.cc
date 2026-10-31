@@ -89,7 +89,7 @@ void Application::Initialize() {
 
   try {
     presentation_->Initialize(xrc_resources, nullptr);
-    presentation_->FillFoodChoices(data);
+    presentation_->FillFoodsComboBox(data);
   } catch (const std::exception& e) {
     throw std::runtime_error(kPresentationStartupErrMsg + std::string(e.what()));
   }
@@ -156,23 +156,24 @@ bool Application::AddMealToUser(const AddMealToUserDTO& data) {
   return success;
 }
 
-std::vector<MealDTO> Application::LoadMealsFromUser(
-    const std::string& username) {
-  std::vector<MealDTO> meals_data;
+bool Application::LoadMealsFromUser(
+    const std::string& username, MealsFromUserDTO &meals_from_user_data) {
   try {
     auto user = user_repo_->GetUser(username);
     auto meals = meal_repo_->GetMealsFromUser(user.id());
+    meals_from_user_data.username = user.username();
     MealDTO meal_data;
     for (const auto& meal : meals) {
+      meal_data.id = meal.id();
       meal_data.name = meal.name();
-      meal_data.user_id = meal.user_id();
-      meals_data.push_back(meal_data);
+      meal_data.foods = meal_repo_->GetFoodsForMeal(meal.id());
+      meals_from_user_data.meals.push_back(meal_data);
     }
   } catch (const wxSQLite3Exception& e) {
-    meals_data.clear();
     std::cerr << e.GetMessage() << std::endl;
+    return false;
   }
-  return meals_data;
+  return true;
 }
 
 bool Application::DoesUserExist(const std::string& username) {
@@ -181,7 +182,8 @@ bool Application::DoesUserExist(const std::string& username) {
 
 UserDTO Application::GetUserData(const std::string& username) {
   const auto user = user_repo_->GetUser(username);
-  UserDTO user_data = {.username = user.username(),
+  UserDTO user_data = {.id = user.id(),
+                       .username = user.username(),
                        .display_name = user.display_name()};
   return user_data;
 }
@@ -195,4 +197,22 @@ FoodDTO Application::GetFoodData(const std::string& food_name) {
                        .carbs_per_100g = food.carbs_per_100g(),
                        .fats_per_100g = food.fats_per_100g()};
   return food_data;
+}
+
+bool Application::SaveMealFoods(const MealDTO& meal) {
+  bool success = true;
+  try {
+    db_adapter_->BeginTransaction();
+    success = meal_repo_->SaveMealFoods(meal);
+    if (success) {
+      db_adapter_->CommitTransaction();
+    } else {
+      db_adapter_->RollbackTransaction();
+    }
+  } catch (const wxSQLite3Exception& e) {
+    success = false;
+    db_adapter_->RollbackTransaction();
+    std::cerr << e.GetMessage() << std::endl;
+  }
+  return success;
 }

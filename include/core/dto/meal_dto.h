@@ -4,15 +4,19 @@
 #include <string>
 #include <vector>
 
+#include "core/dto/food_dto.h"
+
 struct MealDTO {
+  int id;
   std::string name;
-  int user_id;
+  std::string username;
+  std::vector<FoodDTO> foods;
 };
 
 struct MealsFromUserDTO {
   std::vector<MealDTO> meals;
-  int selected_meal;
-  int user_id;
+  std::string username;
+
 };
 
 #endif // DIETAPP_INCLUDE_CORE_DTO_MEAL_DTO_H

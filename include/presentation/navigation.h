@@ -12,8 +12,9 @@ class INavigation {
  public:
   virtual ~INavigation() = default;
   virtual void NavigateTo(PageId page) = 0;
-  virtual void NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) = 0;
-  virtual void NavigateToRegisterPageWithNewUser() = 0;
+  virtual void NavigateToCreatePage(const MealsFromUserDTO& data) = 0;
+  virtual void NavigateToRegisterPage() = 0;
+  virtual void NavigateToEnterPage() = 0;
   virtual void NavigateToRegisterPageWithExistingUser(
       const UserDTO& user_data) = 0;
 };

@@ -26,6 +26,25 @@ constexpr const char* kGetMealsFromUser = R"sql(
   WHERE user_id=(:user_id)
 )sql";
 
+// constexpr const char* kGetFoods = R"sql(
+//   SELECT f.id, f.name, f.display_name, f.proteins_per_100g,
+//   f.carbs_per_100g, f.fats_per_100g, mf.quantity_grams
+//   FROM foods f
+//   JOIN meal_foods mf ON f.id = mf.food_id
+//   WHERE mf.meal_id = :meal_id
+// )sql";
+
+constexpr const char *kDeleteMealFoodsEntry = R"sql(
+  DELETE
+  FROM meal_foods
+  WHERE meal_id=(:meal_id)
+)sql";
+
+constexpr const char* kInsertMealFoodsEntry = R"sql(
+    INSERT INTO meal_foods(meal_id, food_id, quantity_grams, calories)
+    VALUES (:meal_id, :food_id, :quantity_grams, :calories)
+)sql";
+
 class SQLiteMealRepository : public MealRepository {
  public:
   SQLiteMealRepository(std::shared_ptr<DatabaseAdapter> db_adapter);
@@ -41,6 +60,10 @@ class SQLiteMealRepository : public MealRepository {
   bool UpdateMeal(const Meal& meal, int user_id) override;
 
   bool LoadAllMeals() override;
+
+  std::vector<FoodDTO> GetFoodsForMeal(int meal_id) override;
+
+  bool SaveMealFoods(const MealDTO& meal) override;
 
  private:
   auto FindByName(const std::string& meal_name, int user_id) const {

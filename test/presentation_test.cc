@@ -1,3 +1,5 @@
+#include "core/dto/meal_dto.h"
+#include "core/dto/meal_dto.h"
 #define CATCH_CONFIG_RUNNER
 #include "presentation/presentation.h"
 
@@ -242,8 +244,10 @@ TEST_CASE("Presentation", "[UI Flow]") {
         "RegisterPageCreateButtonSucceed"
         "On create button click filling all the required fields and no error "
         "occurs on application layer should go to CreatePage.") {
-      MealDTO meal{.name = std::string("dragons"), .user_id = 1};
-      static_cast<FakeApplication*>(app)->LoadMealsFromUserWillReturn(meal);
+      MealDTO meal_data= { .id = 1, .name = "dragons"};
+      MealsFromUserDTO meals_from_user_data= { .meals = std::vector<MealDTO>({ meal_data}), .username = "ornstein"};
+      static_cast<FakeApplication*>(app)->LoadMealsFromUserWillReturn(true);
+      static_cast<FakeApplication*>(app)->LoadMealsFromUserWillBeSetWith(meals_from_user_data);
       REQUIRE(pres.GetBook()->GetSelection() == (int)PageId::Register);
       EventCounter clicked(reg_create_button, wxEVT_BUTTON);
 
@@ -281,8 +285,8 @@ TEST_CASE("Presentation", "[UI Flow]") {
       REQUIRE(create_page != nullptr);
 
       wxTextCtrl* quantity_ctrl = create_page->quantity_ctrl();
-      wxComboBox* food_choices_ctrl = create_page->food_choices_ctrl();
-      wxDataViewCtrl* selected_foods_ctrl = create_page->selected_foods_ctrl();
+      wxComboBox* food_combo_box_ctrl = create_page->food_combo_box_ctrl();
+      wxDataViewCtrl* selected_foods_dataview_ctrl = create_page->selected_foods_dataview_ctrl();
       NutritionalModel* model = create_page->model();
 
       // Initially quantity_ctrl should be disabled and empty
@@ -299,13 +303,13 @@ TEST_CASE("Presentation", "[UI Flow]") {
       static_cast<FakeApplication*>(app)->GetFoodDataWillReturn(mock_food);
 
       std::vector<FoodDTO> mock_foods = {mock_food};
-      pres.FillFoodChoices(mock_foods);
+      pres.FillFoodsComboBox(mock_foods);
 
       // Select food from the combobox
-      food_choices_ctrl->SetSelection(0);
-      wxCommandEvent combo_evt(wxEVT_COMBOBOX, food_choices_ctrl->GetId());
-      combo_evt.SetEventObject(food_choices_ctrl);
-      food_choices_ctrl->ProcessWindowEvent(combo_evt);
+      food_combo_box_ctrl->SetSelection(0);
+      wxCommandEvent combo_evt(wxEVT_COMBOBOX, food_combo_box_ctrl->GetId());
+      combo_evt.SetEventObject(food_combo_box_ctrl);
+      food_combo_box_ctrl->ProcessWindowEvent(combo_evt);
 
       // Now the food should be added and selected
       REQUIRE(model->GetFoodsCount() == 1);

@@ -1,6 +1,8 @@
 #include <vector>
 
 #include <stdexcept>
+#include "core/dto/meal_dto.h"
+#include "presentation/pages/register_page.h"
 
 #include <wx/simplebook.h>
 #include <wx/stdpaths.h>
@@ -60,23 +62,26 @@ void Presentation::NavigateTo(PageId page) {
   book_->SetSelection(static_cast<size_t>(page));
 }
 
-void Presentation::NavigateToCreatePageWithMeals(const MealsFromUserDTO& data) {
+void Presentation::NavigateToCreatePage(const MealsFromUserDTO& data) {
   create_page_->SetMealsFromUser(data);
   NavigateTo(PageId::Create);
 }
 
 void Presentation::NavigateToRegisterPageWithExistingUser(
     const UserDTO& user_data) {
+  register_page_->set_mode(RegisterPage::Mode::kExistingUSer);
   register_page_->LoadExistingUser(user_data);
-  register_page_->ConfigureForExistingUser();
   book_->SetSelection(static_cast<size_t>(PageId::Register));
 }
 
-void Presentation::NavigateToRegisterPageWithNewUser() {
-  register_page_->ConfigureForNewUser();
+void Presentation::NavigateToRegisterPage() {
   book_->SetSelection(static_cast<size_t>(PageId::Register));
 };
 
-void Presentation::FillFoodChoices(const std::vector<FoodDTO>& data) {
-  create_page_->FillFoodChoices(data);
+void Presentation::NavigateToEnterPage() {
+  book_->SetSelection(static_cast<size_t>(PageId::Enter));
+};
+
+void Presentation::FillFoodsComboBox(const std::vector<FoodDTO>& data) {
+  create_page_->FillFoodsComboBox(data);
 }

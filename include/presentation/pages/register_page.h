@@ -12,8 +12,16 @@
 constexpr char kCreateUserLabel[] = "Criar Usuário";
 constexpr char kAddMealLabel[] = "Adicionar Refeição";
 
+
+
 class RegisterPage {
  public:
+
+   enum class Mode {
+     kCreateUser,
+     kExistingUSer
+   };
+
   RegisterPage(wxPanel* register_page, INavigation* navigator,
                IApplication* app);
 
@@ -34,6 +42,14 @@ class RegisterPage {
   void ConfigureForNewUser();
 
   void ConfigureForExistingUser();
+
+  Mode mode() const {
+    return mode_;
+  }
+
+  void set_mode(Mode mode) {
+    mode_ = mode;
+  }
 
  private:
   void ShowError(const char* err_msg);
@@ -65,6 +81,7 @@ class RegisterPage {
   wxString meal_;
   wxString username_;
   std::function<bool()> current_action_;
+  Mode mode_ = Mode::kCreateUser;
 };
 
 #endif  // DIETAPP_INCLUDE_PRESENTATION_PAGES_REGISTER_PAGE_H
