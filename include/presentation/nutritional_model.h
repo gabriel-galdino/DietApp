@@ -56,15 +56,15 @@ class NutritionalModel : public wxDataViewModel {
   }
 
  private:
-  double CalculatePartialKcal(unsigned int row) const;
+  double CalculateAccumulatedKcal(unsigned int row) const;
 
   double CalculateTotalKcal() const;
 
-  double CalculateTotalProteinsKcal() const;
+  double CalculateTotalProteins() const;
 
-  double CalculateTotalCarbsKcal() const;
+  double CalculateTotalCarbs() const;
 
-  double CalculateTotalFatsKcal() const;
+  double CalculateTotalFats() const;
 
   std::vector<FoodDTO> selected_foods_;
 };
